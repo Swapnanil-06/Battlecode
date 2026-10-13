@@ -1,197 +1,279 @@
 # Cambridge Battlecode ’26 Autumn: strategy playbook
 
-**Pre-reveal draft · 12 October 2026 · timezone: Europe/London**
+**Post-reveal rules snapshot · 13 October 2026 · Europe/London**
 
-**Purpose:** reach a reliable, measurable bot quickly after the reveal, then spend development time on the changes that win matches. This document contains no bot implementation. All implementation, game-specific experiments, and submissions described below start **after the official reveal**.
+**Recommendation:** build a reliable **clear → capture → deliver → tribute** bot before a sophisticated fighting bot. Default to **Marcella + Tavi + Varg** on clustered-camp maps; replace Varg with **Vendetta** on sparse, safe farming routes. Protect carriers, use free wards, spend gold, and finish channels correctly. These are rules-derived hypotheses, **not measured tier rankings or win-rate claims**.
 
-## What we know, and what we do not
+**Evidence:** read the complete official [GameRules.md download][agents], all twelve rules chapters, the [glossary], and all eleven published champion-kit pages. The export includes details hidden in interactive diagrams. Its SHA-256 was `1d4259246a45ca7de4c446f18423779efc2a70772521e11bb8c61a70156173b6`. The [public homepage][event] advertises a twelfth entry, **“Restricted — Under containment,” but publishes no kit or handbook link**. The handbook lists eleven selectable entries, with Cassi & Issac supplying two bodies. Do not invent a twelfth selectable champion from either the teaser or the sidebar’s “12 pages” count.
 
-- **Confirmed:** play is turn-based; the announced objective is to collect gems and offer them at altars. The precise scoring and victory rules are not yet known. [1]
-- **Confirmed:** the season runs **12 October–18 November 2026**, with three weekly ladder-seeded sprints, UK and international qualifiers, and a 16-team in-person final. [1]
-- **Reveal:** **13 October 2026 at 09:00 UK** — 09:00 BST, 08:00 UTC. The official site's delay banner gives this time, although its schedule/FAQ still contain older 12 October reveal wording. Recheck the official announcement at launch. [1]
-- **Unknown:** everything else needed to choose a strategy: exact victory conditions, actions, map representation, number of participants or controlled entities, visibility, resource persistence, randomness, and execution limits. Do not import MIT Battlecode's grids, combat, robots, economy growth, communication, or bytecode model into this game.
+**Labels:** **Rule** means documented in the cited handbook, not independently engine-tested here. **Recommendation / hypothesis** means our strategic judgment. **Uncertain** means missing or conflicting documentation; section 5 gives the required checks. No matches were run for this document.
 
-**Labels:** “hypothesis” means an assumption to verify, not a mechanic we expect to exist. “Team default” means a proposed workflow or experiment budget, not an organizer rule. Conditional examples below are questions to investigate; mark irrelevant ones **N/A** after the reveal.
+## 1. Rules digest: optimize delivered gems, not damage dealt
 
-“Banking” is shorthand for converting collected gems into whatever benefit offering actually gives. It does **not** imply that gems must be carried, that offering grants permanent points, or that offered gems are safe from reversal.
+### Winning and the economy
 
-## 1. Learn the game by tracing how an action becomes a win
+- **1,000 tributed gems wins immediately.** Otherwise the game ends at the 2,000-round limit and compares, in order: **tributed gems → lifetime gold earned → champion kills → Team B** (the team that acted second in round one). Carried gems are not a tiebreak. Spending gold does not reduce lifetime earnings. A local runner can use a shorter horizon, so its configuration matters. [Objective]
+- **Carried gems are unsecured; tributed gems are permanent team score.** There is no documented teammate gem-transfer action. Choose who receives a camp reward rather than designing around an assumed courier handoff. A kill grants the killer the victim’s entire bag plus 50 base gold; a camp kill destroys the bag. The export says assists award no gold. [Gems] [Death] [Bundle][agents]
+- **Camp ownership comes from capture, not the last hit.** Monsters in cardinally connected groups must all die. Occupy their former tiles uncontested to start a five-round capture timer. The export specifies that one capture phase starts the timer and later phases decrement it: arriving on a tile is not already a capture tick. Wait for the actual reward, not a guessed five iterations. Empty or contested regions reset progress; extra allies do not accelerate it. Allies present split rewards, with integer remainder to the lowest ID. [Camps] [Bundle][agents]
+- **Respawn starts after reward capture, not after the kill.** A group uses its longest member cooldown and respawns together only when every spawn tile is free. Leave the region after collecting unless deliberately denying a respawn. Camping on a cleared tile can suppress our next harvest. [Camps] [Bundle][agents]
 
-### Read in decision order
+| Monster | Health | Damage | Listed attack range | Gold | Gems | Respawn after capture |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Gem cluster | 500 | 0 | 0 | 0 | 24 | 50 rounds |
+| Gold cluster | 500 | 0 | 0 | 35 | 0 | 50 rounds |
+| Wolf | 1,350 | 20 | 3 | 90 | 22 | 40 rounds |
+| Elk | 2,400 | 60 | 3 | 160 | 36 | 60 rounds |
+| Monolith | 20,000 | 200 | 5 | 300 | 200 | 150 rounds |
 
-1. **Victory, termination, and ranking rules.** Write the exact winner calculation in plain language, including every alternative victory route, maximum duration, tiebreak priority, and disqualification condition. Separate winning a game from scoring a tournament match and from ladder rating. Never optimize “most collected gems” merely because it sounds like the objective.
-2. **Turn and execution contract.** Read the official API lifecycle, legal-action rules, observation format, update order, compute/memory limits, and consequences of invalid actions or timeouts. Determine whether decisions are sequential or simultaneous and what information is available when each decision is made.
-3. **Gem-to-offering economy.** Read the rules for obtaining gems and making offerings, plus any costs, ownership, limits, reversibility, and timing. Identify the actual scarce constraint: opportunities, actions, access, information, or something else supported by the rules.
-4. **Official minimal example and match tools.** Follow one observation through one legal decision to the engine's next state and eventual result. Learn how to run a match, identify the submitted version, and inspect a replay or log, **if those tools exist**. An example demonstrates API use; it is not evidence of a strong strategy.
-5. **Clarifications, changelog, and adjudication policy.** Record the rules/API version. If documentation, example, and observed engine behavior disagree, preserve the evidence and ask the organizers; do not silently assume which is authoritative or rely on a suspected exploit. Read relevant engine source only if published and permitted.
+Source: [Camps]. **Uncertain:** that same page later says *all* monsters have range 3, contradicting the table’s monolith and cluster entries. Its sleep descriptions also disagree: “no damage for two turns” versus “two rounds without an in-range champion.” Until verified, budget for the larger plausible threat range and do not depend on sleep timing. Monsters do not chase, see through bushes, and wake as a group when damaged.
 
-For every strategically important rule, record **source → interpretation → smallest distinguishing example → observed result**. Prefer examples where competing interpretations produce different legal actions or winners.
+**Strategic consequence:** a standalone gem cluster provides 24 gems for 500 damage, versus a wolf’s 22 for 1,350 damage: approximately **2.95× the gems per damage**, without retaliation. This is not a 2.95× win-rate or throughput advantage: travel, capture, group membership, gold and respawn dominate some routes. A gem cluster connected to an elk is not a free 500-health objective; clearing the whole group is mandatory. Prioritize reachable safe gem groups, then gold that materially shortens later cycles; do not open on a monolith. [Camps]
 
-### First three hours: proposed checkpoints, not promises
+### Tribute, recall and teleport have different interruption rules
 
-| Time after reveal | Deliverable | Stop condition |
+| Channel | Duration in owner turn ends | Damage | Stun / death | Manual cancel | Practical consequence |
+| --- | --- | --- | --- | --- | --- |
+| Tribute | Starting bag ÷ 10, rounded up; minimum 1 | Continues | Cancels | Yes | Survive the channel; a nonlethal hit is not itself a reason to abandon it. |
+| Recall | 5; Home emblem reduces it to 3 | Cancels | Cancels | Yes | Escape threat range before starting. |
+| Teleport crystal | 3 | Continues | Cancels | No | A committed delayed reposition, not an instant escape. |
+
+Sources: [Turn], [Gems], [Combat], [Death], [Items]. A newly placed altar lock also cancels tribute. All timers count the turn on which the channel starts, reach zero at a turn **end**, and resolve at the owner’s next turn **start**. Starting a one-tick tribute on the final actionable turn does not bank gems immediately.
+
+- Tribute from any of the **eight neighboring tiles** of an altar; the altar itself is not walkable. A bag of 22 needs three countdown ticks, 24 needs three, 48 needs five. The duration uses the **starting** bag, but completion deposits the **whole current** bag, including a capture reward received meanwhile. Captures resolve before channels. [Gems]
+- An **altar lock costs 10 gold**, is placed within range 2, and blocks enemy tributes while allowing its owner’s team through. It takes **three basic attacks**, not a damage threshold, to remove. Attempting to tribute against an enemy lock becomes a basic attack against it: do not treat that call as successful channel initiation. Place our lock before our carrier starts; cancellation on lock placement needs an ownership boundary test. [Gems] [Items]
+- **Death costs 60 rounds**, potentially longer if no spawn tile is available; the export describes respawn at a turn start after the countdown, at full health with abilities reset. Dead champions still shop. Cassi and Issac die together and surrender both bags for one kill reward. [Death] [Bundle][agents]
+- Recall retains gems. Arriving on spawn is not the full heal: **stay until that turn’s end**. Shop before leaving. A five-tick recall plus recovery and travel is usually cheaper than death, but compare that complete downtime with continuing a safe route. [Death]
+
+### Action economy and resolution order
+
+**A turn is not “choose one action.”** Every champion normally gets a walk, a basic attack and one successful ability cast, subject to these restrictions. [Turn] [Combat]
+
+| Action | Rule | Bot implication |
 | --- | --- | --- |
-| 0–30 minutes | Fill the critical rows in section 5; explain scoring and the execution contract to a teammate. | Each unknown that could invalidate the first bot has an owner. Do not debate advanced strategies yet. |
-| 30–90 minutes | Run the official example and then a minimal legal bot; inspect a complete game. Demonstrate gem collection and an offering if feasible under the actual rules. | We can distinguish a strategy loss from an invalid action, crash, or timeout and identify the version that played. |
-| 90–180 minutes | Compare the simplest scoring policy with one alternative using controlled matches; replay at least one loss. | We have a frozen baseline, one recorded hypothesis, and a reproducible result rather than an architectural plan. |
+| Walk | One tile, eight directions | Use SDK movement legality; target a free attack/capture/tribute position, not an occupied monster or altar tile. |
+| Melee basic attack | Range 1, visible target, damage = Strength before modifiers | Can walk and attack in the same turn. |
+| Ranged basic attack | Range 3; normal walking and attacking consume each other’s allowance | No ordinary move-and-shoot kiting. An attack reset can restore the attack allowance after walking. |
+| Ability | One successful cast across both slots per turn; each slot has an eight-owner-turn-end cooldown | Slots can be used on consecutive turns, not together. A cooldown reset does not remove the one-cast limit. |
+| Attack-reset ability | Restores basic attack | Prefer attack → reset → attack when stationary; walking → reset → attack is also valuable for ranged units. Do not infer that reset restores movement. |
+| “Excludes walking” ability | Cannot share a turn with an ordinary walk | Choose the spell before greedily moving. It can still accompany an available basic attack. |
+| Ward / consumable / shop | Separate charge, inventory and location restrictions | Do not waste a whole turn merely because one of these was used. |
+| Channel / stun / death | Channel: cancellation only where allowed; stun: no actions; dead: shop only | Handle these states before running movement or combat logic. |
 
-If tooling is unavailable or setup consumes the window, finish the execution loop first and record the blocker. Divide ownership into rules/economy, runtime/testing, and baseline decisions if team capacity allows; one person may cover all three. Integrate at each checkpoint.
+The [Markdown export][agents] gives the fuller order:
 
-### Build an economy ledger before choosing a policy
+1. **Round start:** camp respawns; existing spell/ward updates; camp captures; camp actions.
+2. **Champion turns:** teams alternate execution slots, with the starting team swapping each round. Within each team, higher priority acts first, then draft order. `set_priority` persists and affects the **next** round.
+3. **Champion turn start:** resolve zero timers for respawn, ward recharge, buff/shield expiry, then channels.
+4. **Champion turn end:** decrement timers; apply spawn recovery. Zero countdowns wait for the next start to resolve.
 
-For each **verified** scoring route, list prerequisites, actions consumed, elapsed turns, costs, expected reward, failure conditions, and whether the benefit can be lost. Keep collected gems, offered gems, and actual score separate until the rules establish their relationship.
+**Consequences:** an awakened camp can hit before our next action; a shield expiring at turn start cannot protect a later exchange; capture rewards can enter a pending tribute; a stun’s value depends on the target’s execution slot. Never model all allies acting before all enemies, or assume one fixed team always moves first. [Turn]
 
-| Question | Comparison to make after the rules are known |
-| --- | --- |
-| Collection | Which legal choice produces the most eventual scoring value for its action/turn cost, rather than the largest immediately visible haul? |
-| Banking/offering | If collecting and offering compete for time or resources, compare offering now with collecting more first. Count the complete sequence through a successful offering, not just acquisition. |
-| Denial | If opponents compete for resources or access, compare their expected lost scoring opportunity with our own forgone scoring. Denial is useful only if it changes the actual outcome; physical blocking, theft, and combat are not assumed. |
-| Investment | If spending resources can increase future earning capacity, calculate when that investment repays its cost in score, including delay and risk. Do not assume any compounding economy exists. |
-| Endgame | If games have a known horizon, determine the last decision point at which each plan can still produce a counted result. Unfinished plans may be worthless — verify this. |
+### Map, movement and private vision
 
-**Hypotheses to test, not starting beliefs:** immediate offering beats accumulation; acquisition is the bottleneck; early investment pays off; denying a shared opportunity beats pursuing a private one. Each needs a competing policy and a case where their outcomes differ.
+- Maps are grids from 30×30 to 100×100. Ranges use **Chebyshev distance**: diagonals count as one. Walls block sight and walking/dashes; holes block walking but not sight and can be dashed over; bushes are walkable and obscure vision. Dashes reach up to two legal steps; crystals reach three tiles and ignore intervening terrain. The export forbids landing on walls, holes, altars, enemy spawn or occupied tiles. **The map table’s “TP Crystal can reach walls” conflicts with this; do not plan a wall landing.** [Maps] [Bundle][agents]
+- Each champion sees radius 8 using symmetric shadowcasting, **plus only its own ward**. Teammate sight and wards are **not** shared. From outside, bushes hide their interior and tiles beyond; from inside, the connected bush cluster is transparent to that champion, but other bushes still block. Holes do not block sight. [Vision]
+- Each champion has one free permanent, indestructible ward: placement within range 2, vision 6, charge refreshed after one round. Replacement removes the old ward. Scout an altar approach or bush before committing; do not relocate a useful rear alarm reflexively every turn. [Turn] [Vision]
+- SDK movement masks account for **visible** occupants, not hidden enemies. A hidden blocker makes the attempt return `false`, reveals its tile for the rest of the round, and consumes no move, ability cooldown or crystal. Reobserve and try a different destination with a bounded retry count. A destination already known to be occupied raises an error instead. [Maps]
 
-Use the win condition to value risk. If the objective is winning rather than maximizing total score, a lower-variance policy may be preferable when ahead and a higher-variance policy when behind. That requires a meaningful estimate of who is ahead and confirmation of the tournament objective; neither is assumed.
+**Consequence:** knowing the terrain from draft is not knowing where enemies currently are. Maintain last-seen information with age, and distinguish “unseen” from “empty.” A shared-memory warning does not make a unit a legal visible target for a unit-targeted spell. [Draft] [Vision] [Combat]
 
-The transferable lesson from The Kragle is to inspect conversion efficiency and idle time, not to copy its economy-first game plan. Its authors describe improving resource use while also wasting effort on low-impact behavior and unreliable pathfinding. [3]
+### Gold, items and durable scaling
 
-### Edge cases to resolve before they decide a tournament
+Shards cost **30 gold** and add that champion’s growth in Strength, Health or Focus. Five identical shards automatically make an emblem for **150 total gold**; stats apply immediately, the family passive only on completion. Buy at spawn or while dead; Tavi alone can buy shards in the field. Buying Health on spawn heals the added amount; Tavi’s field Health does not heal. [Items] [Tavi]
 
-Test only the cases that exist in the revealed game, with both sides of each boundary:
+| Emblem family | Stat value | Passive |
+| --- | --- | --- |
+| Monster | 5 chosen-stat shards | +10% damage to camps |
+| Power | 6 chosen-stat shards | No additional passive |
+| Durability | 5 chosen-stat shards | −10% incoming damage |
+| Treasure | 5 chosen-stat shards | +20% gold gained |
+| Jungle | 5 chosen-stat shards | −30% camp damage |
+| Home | 5 chosen-stat shards | Recall five ticks → three |
+| Bruiser | 5 chosen-stat shards + 1 of each other stat | No additional passive |
 
-- **Last-turn accounting:** an offering just before versus just after the final scoring update; simultaneous threshold crossings; exact ties versus a one-unit advantage.
-- **Action order and legality:** whether one action enables another in the same turn; exact cost/range/capacity boundaries; whether a rejected action consumes a turn or resources.
-- **Competition for one opportunity:** two actors choosing the same gem, altar, or action target; resolution priority, stale observations, and whether earlier actions invalidate later ones.
-- **Unavailable goals:** no reachable/eligible target, exhausted resources, changed eligibility, or interrupted plans. Can the bot safely abandon an impossible goal rather than loop or wait forever?
-- **Information changes:** if there is partial visibility or persistent memory, distinguish “not observed” from “does not exist”; invalidate stale beliefs; confirm whether memory survives turns and resets between games.
-- **Topology and orientation:** if there is a spatial map, try awkward boundaries, narrow access, disconnected regions, and each starting role. Do not infer symmetry or movement geometry from pictures.
-- **Budget and terminal behavior:** large valid observations, expensive turns, initialization, no legal actions, exact budget exhaustion, and termination during a planned sequence. Verify the official fallback/pass behavior rather than inventing one.
+Stats stack, including duplicate emblems, but a family’s passive **does not stack with itself**. Vesper’s +20% gold and Treasure’s +20% add to **+40%, not +44%**. Only Tavi sells, at spawn for full purchase price; refunds are not earned gold. Locks and teleport crystals each cost 10 gold, with at most one of each held. [Items]
 
-Tiebreakers can be a primary strategy, not an afterthought: 5 Musketeers describes exploiting the actual resource tiebreak in MIT Battlecode 2022. That is evidence to read the rules carefully, **not** evidence that Cambridge has the same tiebreak. [4, §4.2.1]
+**Recommendation:** buy useful stats before stockpiling gold, and complete a useful first family before scattering purchases just to chase passives. Strength improves repeated farming attacks; Health/Jungle can enable a camp that otherwise kills us; Focus improves actual scaling spells. **Do not buy Focus for Vesper, Vendetta or Issac merely because they have abilities:** their documented reset/dash kits have no Focus multiplier. Ryth gains only **1 Strength per +100 bonus Health**, not 1% of total health. [Items] [Ryth] [Vesper] [Vendetta] [Cassi]
 
-## 2. Advance through the strategy ladder only when evidence earns it
+### Draft, fuel and team memory
 
-These are capability levels, not a mandatory sequence of increasingly complex algorithms. A well-tested heuristic may remain the final bot. Keep earlier versions as controls and fallback submissions. Effort estimates below are **team defaults** to revise after seeing the API and available hours.
+- A map specifies **3–5 draft selections per team**. Picks are simultaneous each step and revealed as the draft proceeds. No duplicate within our team; the opponent may select the same champions, so this is **not pick denial**. Cassi & Issac cost one selection and each get a body, bag, bot instance and turn. The entire map and initial camps are visible during draft. Missing a pick through yielding, crashing or fuel exhaustion results in random remaining selections. [Draft] [Cassi]
+- **1,024 bytes of draft memory** are writable only in draft, then read-only to every champion. **8 bytes of match memory** are readable/writable throughout the match and private to the team. These are communication budgets, not a statement that each bot has only eight bytes of local state. [Memory]
+- Wasmtime fuel is deterministic instruction-like computation, not wall time. Limits below are the handbook defaults; unused fuel does not carry over. **Exhaustion suspends execution and resumes at the same instruction next round**, risking actions based on a now-stale observation. Return/yield deliberately with budget in reserve. [Fuel]
 
-| Stage | What to build after reveal | When it is worth the effort | Evidence for moving on |
+| Language | Normal turn | First draft turn (10×) | First play turn (2×) |
+| --- | ---: | ---: | ---: |
+| C++ / Rust | 100,000 | 1,000,000 | 200,000 |
+| OCaml | 500,000 | 5,000,000 | 1,000,000 |
+| Python | 2,500,000 | 25,000,000 | 5,000,000 |
+
+The homepage still says Python gets 20×; **use the current fuel chapter’s 25× as the documented default and verify the actual runner configuration**, not the marketing FAQ. The 10× allowance is for the first draft turn, not every pick. [Fuel] [Event][event]
+
+**Week-one memory plan — proposed, not an SDK contract:** store a versioned shortlist of camp groups, altars, champion roles and route waypoints in draft memory; a 100×100 terrain grid does not fit uncompressed into 1,024 bytes. Use the 64-bit live buffer for one high-value alert: 7-bit x + 7-bit y + 3-bit event kind + 3-bit sender slot + 11-bit observation round + 11-bit expiry round + 22 reserved = 64. Coordinates fit 0–99; round fields fit 0–2,000; sender slots support the extra Cassi/Issac body. Define “none,” freshness, severity and replacement rules. A later writer must preserve a fresher higher-priority carrier/altar warning. Do not try to broadcast everyone’s vision; normal roles come from the draft plan. [Draft] [Memory] [Vision]
+
+## 2. Champion tiers: value per implementation hour
+
+**These tiers rank week-one bot suitability, not proven combat strength.** S means the proposed default implementation set; A means a strong map-dependent alternative; B means coordination or risk management must earn the slot. All champions have vision 8, walk 1, one cast per turn and eight-tick ability cooldowns. Listed Health / Strength / Focus are base values before equipment and passives. [Roster]
+
+| Tier | Champion; base H / S / F | Concrete value and minimum policy | Why not an unconditional pick? |
 | --- | --- | --- | --- |
-| **1. Trivial-legal bot** | The smallest policy that reliably produces legal decisions, completes games, and attempts the simplest verified scoring route. Use an official safe fallback only if one exists. | Immediately; timebox the first attempt to hours. This is the execution and submission baseline. | Representative games finish without bot faults, the recorded result matches our understanding of the rules, and losses are mostly poor decisions rather than broken execution. |
-| **2. Scripted opening** | A short, explicit initial plan with checked preconditions, an abort condition, and a handoff to the baseline. A script must not continue blindly after the state diverges. | When initial conditions repeat enough that early choices predictably affect later scoring. Skip or shorten it if starts are highly variable. | The opening improves early progress **and** final outcomes across starting roles. Replays show most remaining losses arise after its handoff or require reacting to state. |
-| **3. Heuristic evaluation** | Rank legal choices by a few interpretable estimates tied to actual scoring: completion cost, expected benefit, delay, and applicable risk. Separate hard legality from preferences and avoid repeated goal switching. | When scripts fail in varied states and the relevant tradeoffs can be estimated cheaply. Usually the best first-week default. | Held-out losses repeatedly require looking beyond the next choice, despite sensible features and thresholds. Feature ablations show which terms matter; tuning is no longer yielding comparable gains. |
-| **4. Search/planning** | Add bounded lookahead to one demonstrated decision bottleneck, with a tested transition model and enough budget reserved to return a legal decision. Keep the heuristic fallback. | Only when the failure needs multi-step reasoning, transitions can be modeled adequately, and measured compute headroom supports it. Prototype one decision class before a whole-game planner. | Equal-budget tests show gains over the heuristic, including hard states. Then consider modelling opponents only if remaining errors are specifically about their choices, not our transition model or horizon. |
-| **5. Opponent modelling** | Adapt among already-tested policies using permitted observable behavior; track uncertainty and retain a general policy when evidence is weak. | When repeated behavior is observable and a counter has positive value without making us broadly exploitable. Do not require opponent identity to be exposed. | Retain it only if it beats the non-adaptive version on unseen opponents and varied behaviors. Otherwise return to the simpler policy; there is no obligation to reach this stage. |
+| **S** | **[Marcella]**; 1,200 / 45 / 50; melee | **Stun immune**: unusually reliable tribute carrier. Slot 0 resets attack and makes the next enhanced hit stun; slot 1 deals 2× Focus at range 4, excluding walking. Simple attack → reset → stunning attack; prioritize the enemy interruptor. | Immunity does not stop death or altar locks, and does not protect recall from damage. No dash; poor delivery routes still lose. |
+| **S** | **[Tavi]**; 750 / 35 / 100; ranged | Field shard purchases convert capture gold into power without a shopping trip. Reset plus **220 base damage and stun at range 4** gives simple farm/combat value. Buy after reward, then re-evaluate target and survival. | Fragile; cannot move with the damaging stun, self-heal through field Health, or buy field consumables. Sustain still matters. |
+| **S on clustered maps; A otherwise** | **[Varg]**; 1,000 / 50 / 100; melee | Basic attacks splash **full Strength** to other valid targets within radius 1 of the primary target; primary is not double-hit. Reset multiplies this value. Slot 1 gives a **250-base shield for five turns**. Choose the target covering the most useful health; shield before expected burst. | Splash can awaken more monsters than we can survive. Shield and reset compete for this turn’s cast; do not model both. |
+| **A** | **[Vendetta]**; 800 / 70 / 100; melee | Highest listed base Strength; reset and two-step dash. **Camp kills also refresh both ability cooldowns.** Fast isolated clusters and finishers make resets cheap; kill, then exploit the refreshed dash on a later turn. | Kill reset does not permit a second cast this turn. Low Health relative to damage, no stun; chasing carriers through fog can throw our own bag. |
+| **A** | **[Ryth]**; 1,200 / 50 / 100; melee | Durable farmer/escort. Range-4, radius-1 spell deals 100 base damage and stuns, or use attack reset. Good on adjacent groups and clustered enemy channels. Health purchases also add 1% of the bonus as Strength. | AoE stun excludes walking; passive’s damage gain is modest. Unlike Marcella, Ryth can be stunned out of tribute. |
+| **A** | **[Stellar]**; 750 / 35 / 100; ranged | Two uncomplicated range-4 damage spells: **200 single-target** and **140 per target in radius 1**, on separate cooldowns. Spell selection can maximize damage without a complex passive. | Cannot cast both in one turn; both exclude walking. No stun, dash or sustain. Fragile at basic-attack range of an active camp. |
+| **A, economy specialist** | **[Vesper][vesper]**; 900 / 45 / 100; ranged | Passive +20% gold, attack reset, two-step dash. Give Vesper the capture of gold-rich groups when route costs permit; basic-attack builds are straightforward. | No damaging spell or stun; gold earns no primary score. Range 3 is not a safety advantage over range-3 camps, and ordinary move-and-fire is forbidden. |
+| **B solo; A in a tested pair** | **[Willow]**; 700 / 45 / 105; ranged | Heal **another** ally for up to **315 base Health at range 4**, compatible with walking. Reset supplies damage on other turns. Keep a tank visible and heal missing health before the next dangerous exchange. | Cannot self-heal; modest Health/Strength growth (+50/+3). Escorting costs an independent farmer, and heal/reset cannot share a turn. |
+| **B; matchup-dependent** | **[Ren]**; 900 / 40 / 100; melee | Retaliates for **20 base damage per damaging event**, even as he dies; range-4 spell deals 125 and stuns; dash gives access/escape. Candidate against many low-damage attackers. | Retaliation is not damage reduction. No attack reset; taking damage deliberately must beat avoiding it. Verify passive interaction chains before modelling duels. |
+| **B week one; high-upside research** | **[Cassi & Issac][cassi]**; Cassi 700 / 30 / 70 ranged; Issac 900 / 40 / 100 melee | **Two independent turns and positions for one pick.** Cassi: 140-base range-4 damage or a walk-compatible range-4 stun. Issac: reset or dash. Can cover two safe routes or split fighter/capturer responsibilities. | Either death kills both and loses both bags. Separate vision and bot instances add coordination cost; protecting only the melee body is insufficient. Not a weak kit, but a large reliability burden. |
+| **B, defer gem-hoarding policy** | **[Prism]**; 700 / 35 / 80; ranged | Range-4 spells: 1.5× Focus damage + stun, or 1× Focus radius-1 damage. +0.2 Focus per carried gem; a **50-gem bag adds 10 Focus**, only +15/+10 spell damage before modifiers. | Hoarding delays permanent score and magnifies death losses for modest early gains. No mobility/sustain; do not replace banking with an arbitrary “keep 100 gems” rule. |
+| **Unranked** | **Under containment** | Public teaser only; no published stats or ability page found. | Reassess if released. Do not assume availability or fabricate a counter. [Event][event] |
 
-**Search selection is also conditional.** Deterministic planning requires sufficiently known transitions; adversarial search requires a justified model of turn order, participants, and objectives; stochastic or hidden-information planning requires a model of uncertainty. Do not choose minimax or Monte Carlo search from the competition's name alone. Short-horizon planning can also miss delayed offerings; compare against complete scoring sequences.
+### Strongest combo candidates and their actual constraints
 
-**Promote a change, not an impressive algorithm.** State the expected benefit before building it, test at the same actual execution limit, and remove it if the gain does not justify runtime, debugging, and maintenance cost. Just Woke Up's retrospective explicitly recommends starting simple, iterating, and avoiding complexity for its own sake. [2, pp. 20–23]
+1. **Marcella + Tavi: secure delivery and ranged interruption.** Give Marcella a capture when stun-resistant banking matters; keep Tavi in his own line of sight to enemy interruptors, using the 2.2× Focus stun to protect or stop a tribute. Conversely, Tavi can take gold-bearing captures for immediate field upgrades. There is no free transfer of Tavi’s bag to Marcella. Select the capturer **before** reward resolution. This is the most attractive general-purpose week-one pair. [Marcella] [Tavi] [Camps] [Gems]
+2. **Varg + Willow, with Marcella as an additional carrier/escort on larger teams: sustained clustered farming.** Varg’s repeated splash clears groups; Willow’s 315 heal every available cooldown and Varg’s 250 shield reduce recall pressure. Have the durable unit be the nearest valid camp target; keep the patient visible to Willow while she stays outside the dangerous footprint. The heal’s sustained rate is at most 315 ÷ 8 = **39.375 Health per round** before movement, overheal and interruptions—insufficient by itself against several attacking wolves or an elk. Test whether this pair beats two independent farmers, rather than assuming “support” is free. [Varg] [Willow] [Camps]
+3. **Ryth + Stellar: AoE control into AoE damage.** Against clustered enemies or camps, Ryth can stun and Stellar can hit the same area on her own turn. Schedule the setup champion early for the **next** round, but model intervening enemy slots. At base Focus their AoE casts total **240 damage per common target**, not two casts from one champion; unstunned/immune targets may move before Stellar acts. Stronger candidate on narrow altar approaches than dispersed maps. [Ryth] [Stellar] [Turn] [Marcella]
+4. **Vesper + Treasure: gold snowball, not a direct gem multiplier.** +40% gold can fund faster clearing and improves a tied-gem tiebreak. Have Vesper receive gold-rich captures when that does not delay the next bank. Compare an early Treasure emblem with Monster/Jungle: the latter can immediately increase camp access or uptime. [Vesper] [Items] [Objective]
+5. **Cassi & Issac: extra-body map control.** Two safe disconnected farming assignments can exploit their extra action stream without constant local coordination; a combat pairing can combine Cassi’s walk-compatible stun with Issac’s melee approach. Both require conservative retreat and gem exposure limits on **both** bodies. This is a Sprint 2–3 experiment, not something to dismiss permanently because implementation is harder. [Cassi] [Death] [Vision]
 
-**Sprint pacing — team default:** aim for reliable legal play and a measured scoring heuristic at the first lock; use later sprints to test evidence-backed additions. Reserve the final working session before each lock for integration, representative matches, and submission verification. Confirm exact lock and seeding times independently; a stronger bot uploaded too late may not improve its seed. [4, §4.3.3]
+**Anti-combo:** stacking stuns is not automatically a chain. A second stun on an already-disabled target may waste future denial; Marcella ignores stuns entirely. Save a stun for the next relevant execution slot or tribute attempt unless immediate damage/kill value is higher. Exact stun lifetime/refresh behavior needs a boundary test. [Combat] [Marcella] [Turn]
 
-## 3. Evaluate changes without fooling ourselves
+## 3. Sprint 1: the smallest strong bot, in priority order
 
-### Separate diagnosis from promotion
+The [published schedule][event] says Sprint 1 is **18 October**, with submissions locking **17 October at midnight UK time**; later locks are **24 October** and **31 October**. The page does not supply an unambiguous ISO timestamp for “Saturday at midnight.” **Team default: freeze and verify an accepted candidate by Friday 16 October, 20:00 BST (19:00 UTC)**, safely before either interpretation, and confirm the actual tournament lock. Do not rely on a last-minute upload. London is on BST for the first lock and on GMT by the third.
 
-Use three pools, to the extent official tools and permitted opponent access allow:
+### P0 — Finish the objective loop and obey action state
 
-1. **Development cases:** deliberately small cases that expose a rule interpretation, bug, or expected improvement. Passing these explains a mechanism; it does not establish general strength.
-2. **Fixed regression suite:** the last accepted bot, several older versions with different weaknesses, the official example if provided, and permitted diverse opponents. Cover actual map/scenario families and every meaningful starting role. Do not invent map generation or opponent-download capabilities.
-3. **Held-out promotion set:** different scenarios/seeds and, where possible, opponents not used while tuning. Keep results out of routine parameter selection. Once inspected and tuned against, that set is no longer held out; replace or extend it before the next strong claim.
+Implement explicit goals: **travel → clear → capture → deliver → tribute → recover/shop**. On each turn, check death, stun, active channel, actual action allowances, target visibility and fuel before acting. A channel can occupy multiple turns without being a stuck bot. Change goals after observing success or a failed precondition, not simply after a fixed number of calls. Validate a complete first bank with the exact submitted artifact before optimizing anything. [Turn] [Gems] [Fuel]
 
-If local opponents, seed control, replay export, or custom scenarios are unavailable, record that limitation. Use available official matches/logs and describe conclusions as observational rather than pretending to have a controlled experiment.
+**Acceptance:** a bot can clear every member of a group, stand on a capture tile until reward arrival, leave it, reach an adjacent altar tile and observe increased **team tributed gems**. The same loop recovers from an enemy lock, a hidden movement blocker, a cancelled channel and death. No accidental infinite retry after `false`; no cast while stunned; no “successful tribute” inferred from an attack on a lock. [Camps] [Maps] [Gems]
 
-For candidate-versus-baseline tests, hold rules/engine, scenarios, seeds where supported, opponent versions, and execution limits fixed. Run both versions against the **same opponent panel** as well as head-to-head. Swap starting roles when supported; for more than two roles, rotate across all relevant assignments. Evaluate natural variation rather than replaying the same deterministic fixture hundreds of times.
+### P1 — Draft routes, not just favorite champions
 
-Record version identifiers, rules version, opponent/version, scenario/seed, starting role, result, score if meaningful, termination reason, runtime/budget use, and replay/log reference. Track invalid actions, crashes, and timeouts separately from strategic losses, but **keep them in the overall result**. Secondary metrics such as time to a successful offering diagnose why a change worked; they do not replace the actual win criterion.
+During the full-vision draft, find connected camp groups, their combined rewards/threats, safe approach tiles, reachable altars and spawn return costs. Assign **non-overlapping first objectives** and a designated capturer per group. Store a compact first route plus fallback waypoints; revalidate occupancy and danger during play. Precompute only what fits the actual first-draft fuel allowance, with a valid pick guaranteed before budget exhaustion. [Draft] [Camps] [Memory] [Fuel]
 
-### How many games?
+**Proposed roster policy:**
 
-There is no universal adequate count. It depends on effect size, diversity, correlation, and the decision's cost. The following are **team-default budgets and statistical approximations**, not rules from Cambridge or claims made by the postmortems.
+- **3 picks:** Marcella, Tavi, Varg when useful splash groups exist. Swap Varg for Vendetta for isolated low-threat groups. Ryth is the alternative when durability and AoE interruption matter more than raw clear rate.
+- **4 picks:** add an unused farmer for another independent route: Vendetta if not already selected, otherwise Ryth or Stellar as the terrain/threats warrant. Use Vesper instead if a separate gold-rich route can fund repeated upgrades.
+- **5 picks:** add Willow only if an identified two-body farming/escort route actually needs sustain; otherwise add an unused A-tier farmer suited to the map. Do not force a five-champion deathball through every capture.
+- Later enemy reveals may influence the remaining picks: Marcella is attractive against multiple stuns; do not assume that selecting her prevents the enemy from doing the same. These choices are hypotheses to A/B test, not settled draft theory. [Roster] [Draft]
 
-| Purpose | Suggested starting budget | What it can establish |
+### P2 — Clear safe camps efficiently; never donate a full bag to an elk
+
+Rank complete **clear/capture/delivery routes**, not nearest monsters. First reject routes with no legal exit or unsafe predicted damage; then favor delivered gems per total travel, clear, capture and tribute time. Treat useful gold as an investment in later routes, not interchangeable score. Prefer standalone clusters; take wolves when our current health and damage support the full group. Avoid monoliths in the initial policy. [Camps] [Objective]
+
+**Minimal threat model:** sum attacks from all awakened monsters that can reach the proposed position until our kills reduce that set; include their pre-champion action phase, enemy approach time and an escape reserve. Basic ranged range 3 does **not** outrange wolves/elks. Range-4 spells offer poke without entering their listed range 3, but a poke-only route is slower and sleep/range ambiguities must be checked. A 1,000-health Varg is not automatically safe into three wolves merely because he hits all three. [Camps] [Turn] [Varg]
+
+Use ordinary attacks whenever safe, resets **after** using an available attack, spells on worthwhile targets, and Varg’s shield before a dangerous phase. Preserve an interrupt spell when an enemy carrier is about to finish banking. After a group dies, leave **one** capturer unless a contested region requires protection; others can clear the next objective or guard approaches outside the capture region. Capture is a world mechanic, not a spell channel: useful legal actions need not stop while holding the region. [Turn] [Camps] [Combat]
+
+### P3 — Bank predictably, with a risk-aware bag threshold
+
+**Initial policy hypothesis:** bank after one or two safe gem groups, using **40–60 carried gems as a tuning range**, not a universal cap. Bank earlier if already near a safe altar, facing a plausible interception, or able to reach 1,000 team score. Allow a larger bag only if the next route and altar remain safe and the saved travel justifies it. Compare against “bank after every capture.” [Gems] [Objective]
+
+Why not always one camp? Two 24-gem captures bank together in **five** ticks rather than two three-tick channels and can save a return trip. Why not always accumulate? That 48-gem carrier exposes a bigger transfer and sits still longer. If a carrier dies and the opponent later deposits its bag, the potential score swing against our successful deposit is **twice the bag**, plus downtime; that swing is conditional on the opponent completing delivery. [Gems] [Death]
+
+Before starting, ward the approach, check reachable enemy stun/lock threats and choose the safest legal neighboring tile. Continue through nonlethal damage when completion is safe; cancel if death before completion is likely. Marcella can disregard **stun** interruption, not lethal damage or a lock. When behind near the horizon, prefer plans that can finish before termination; unbankable new gems are worthless. When tributed gems are genuinely tied and no further bank can finish, lifetime gold matters before kills. [Vision] [Gems] [Marcella] [Objective]
+
+### P4 — Recall before lethal pressure; upgrade on the way back
+
+Retreat with enough health to leave monster/enemy reach, then recall. Do not start recall under continuing damage and retry forever. If safe, bank before a shopping trip; if not, recall with the gems rather than dying for a speculative bank. After arrival, shop and remain until the full-heal turn end before routing out. Buy while dead instead of wasting the shopping window. [Death] [Turn]
+
+**Initial build hypotheses, chosen by role:**
+
+- Attack-heavy Varg/Vendetta/Vesper: **Monster Strength** on safe PvE routes; test **Jungle Health** first where incoming camp damage otherwise forces retreats. Switch toward durability if champion fights dominate. Only completed emblems grant these passives. [Items]
+- Marcella carrier: enough **Health/Durability** to survive the intended channel, then Strength to reduce clear time. Stun immunity is not a license to ignore incoming damage. [Marcella] [Items]
+- Tavi: buy useful shards immediately after capture. Favor **Strength for repeated basic attacks**, **Focus for spell-driven routes**. One shard adds 5 basic damage versus 22 damage to his stun spell; at one spell every eight rounds the latter is at most 2.75 extra damage per round before modifiers, while repeated basics can deliver more. Focus is preferable if range-4 poke, burst or denial is the actual job. Field Health supplies no emergency heal. [Tavi] [Items]
+- Carry a **10-gold lock** after an affordable shop visit when an enemy-accessible altar is on our route. Treat a crystal as a preplanned terrain shortcut or damage-tolerant channel, not a three-tile dash. Do not buy redundant emblem passives or repeatedly recall just to spend 30 gold when the return trip costs more than it earns. [Items] [Gems]
+
+### P5 — Fight for a bank, a camp or a high-value carrier
+
+Avoid full tactical search for Sprint 1. Score a small set of legal local choices: finish a kill; interrupt an imminent enemy tribute; protect our channel; take a favorable attack; retreat; continue the farming goal. Favor visible killable carriers, channel interruptors and units contesting a nearly completed capture over an arbitrary nearest champion. Do not follow a fleeing empty-handed enemy through fog while our bag waits to score. [Gems] [Camps] [Death] [Vision]
+
+Use single-turn attack/reset sequences and short survival estimates. Against an enemy tribute, ordinary nonlethal damage **does not cancel it**: use a stun, a lock, or a kill. Against Marcella, only the latter two are reliable interruption routes from that list. A timely 10-gold lock can invalidate a long channel, but do not trade a carrier’s life just to place one. [Combat] [Gems] [Marcella]
+
+### P6 — Ward and communicate the one fact teammates need
+
+Place a ward before entering a blind approach and before committing to a bank. Share a fresh **enemy carrier / altar danger / contested route** alert through the small live buffer; keep ordinary route allocation deterministic from the draft plan. Other champions use the message for movement and risk decisions, not as proof that they can target an unseen unit. Bound how long a goal remains blocked before taking its fallback. [Vision] [Memory] [Maps]
+
+### P7 — Promote based on wins, not a beautiful replay
+
+Team default: first run 10–20 diverse full-match smoke tests, then side-swapped candidate/incumbent comparisons on a fixed opponent panel and held-out maps. Include a greedy farmer, an aggressive interceptor and a lock/stun-focused defender if those controls can be built cheaply. Use the **actual round cap and fuel settings**; a short local game can rank routes differently. [Objective] [Fuel]
+
+Record winner, tributed gems, lifetime gold, deaths and gems lost, time to first tribute, clear-to-capture delay, idle/blocked turns, failed actions, and worst-turn fuel. Keep current/previous bot versions and replay at least one loss per map family. Count a fuel suspension or bot fault as a real result, not a filtered-out sample. Large gains need repeated evidence; small win-rate differences need uncertainty estimates over independent map/opponent blocks. No numerical improvement is claimed in this playbook.
+
+**Freeze order:** reliable objective loop → safe routes/capture → banking/survival → action use/upgrades → wards/basic denial. If time runs out, cut adaptive drafts and search, not capture completion or channel correctness.
+
+## 4. Sprints 2–3: research ranked by expected win-rate impact
+
+The order below is an **ex ante estimate of marginal impact after the week-one baseline**, balancing frequency, consequences and implementation cost. “High/medium” is a priority judgment, not an invented percentage-point gain. Promote a task if replays show it causes more losses than the tasks above it; correctness blockers in section 5 override this ranking.
+
+| Rank / sprint | Hypothesis and expected impact | Rules-based mechanism | Distinguishing experiment and promotion evidence |
+| --- | --- | --- | --- |
+| **1 · Sprint 2 · High** | **Joint route/capture/bank scheduling** beats independent nearest-camp farming. | Fixed capture delay, no multi-ally acceleration, group respawn only after claim, delivery travel and occupancy-blocked respawns create wasted team turns. [Camps] [Gems] | Compare fixed roles with a small assignment planner on clustered/sparse maps. Vary solo capturer, concurrent clearers, respawn revisit timing and bag thresholds. Require more actual tributes/wins, not merely more harvested gems. |
+| **2 · Sprint 2 · High** | **Altar control and protected channels** beat passive banking once opponents contest. | Nonlethal damage cannot interrupt; stun, death and cheap three-hit locks can. Marcella changes that matchup. [Gems] [Marcella] | Test locks before/late in channels, lock breaking with reset champions, escort positions and alternate altars against a dedicated disruptor. Include Marcella carriers as the counterexample. Measure prevented/completed banks and our farming opportunity cost. |
+| **3 · Sprint 2 · High** | **Bounded two-round combat planning** prevents avoidable deaths and secures carrier kills. | Move/attack restrictions, one cast, per-slot cooldowns, reset sequences, stun slots and alternating team order reward accurate short lookahead. [Turn] [Combat] | Compare heuristic versus enumerated legal sequences under identical fuel. Use asymmetric health/cooldowns, both starting teams and priority orders. Measure gem-weighted deaths and final wins; reject planners that suspend mid-decision. |
+| **4 · Sprint 2 · Medium–high** | **Role-specific item and recovery breakpoints** buy more active farming time than a fixed build. | Shards scale differently; family passives do not stack; Tavi shops remotely; Jungle/Durability/Health can enable routes; Home saves only two recall ticks. [Items] [Death] [Tavi] | Sweep a few discrete first-emblem choices, recall health thresholds and spending intervals. Compare total clear + capture + heal + return cycles, not training-dummy DPS. Evaluate Treasure/Vesper payback before the real horizon. |
+| **5 · Sprint 2–3 · Medium–high** | **Ward placement plus compact danger sharing** reduces expensive fog interceptions. | Vision is per champion and bushes hide units; wards are free but replacement loses old coverage; live communication is 64 bits. [Vision] [Memory] | Hold farming policy fixed; compare reactive warding, altar/return-path sentries and age-bounded alerts. Count surprise deaths and false-positive detours. Explicitly test last-writer conflicts and stale warnings. |
+| **6 · Sprint 3 · Medium** | **Map/opponent-conditioned drafts and paired roles** outperform one roster. | Full map is visible in draft; previous simultaneous picks reveal information; splash, support and anti-stun value depend on geometry/opponents. [Draft] [Roster] | Compare Varg vs Vendetta on equal-reward grouped/isolated layouts; Willow pair vs two farmers; Ryth/Stellar versus dispersed and stun-immune opponents. Choose using held-out maps, not a memorized map ID. |
+| **7 · Sprint 3 · Medium, high upside** | **Cassi & Issac’s extra body** can outweigh linked-death exposure. | One selection grants two positions/turns, but either death removes both and both bags. [Cassi] [Death] | Compare safe split farming with an escort pair and a normal single-slot replacement. Stress simultaneous threats to both bodies. Track joint lost uptime/bags, not just their combined damage. |
+| **8 · Sprint 3 · Medium, map-specific** | **Capture/tribute overlap and channel-aware pathing** shorten delivery cycles. | A camp tile adjacent to an altar can support capture; a channel uses the initial bag but deposits later gains; crystals cross intervening terrain; dashes cross holes in up to two steps. [Camps] [Gems] [Maps] | Test starting with 1 carried gem and a capture completing before tribute resolution, versus empty-bag rejection and reversed timing. Only use documented combinations; test against disruption. Compare geometric shortcuts including three-tick crystal commitment. |
+| **9 · Sprint 3 · Low until supported by losses** | **Selective monoliths and Prism bag retention** may create decisive late swings. | Monolith: 20,000 health, 200 gems, dangerous listed range; Prism: +0.2 Focus per unbanked gem. [Camps] [Prism] | Require verified monolith range/sleep behavior and a complete kill/capture/delivery forecast. Compare with parallel ordinary camps. For Prism, price the incremental spell damage against delayed score and bag loss at several threat levels; reject blanket hoarding. |
+
+**Defer whole-game minimax, large learned policies and elaborate opponent identification** until a logged loss class cannot be fixed with routes, channels, upgrades or short combat planning. Hidden independent observations, a 2,000-round horizon and limited per-turn fuel make a broad search expensive; they do not preclude a small local planner with a legal-action fallback. [Objective] [Vision] [Fuel]
+
+## 5. Uncertainties and probes before relying on a mechanic
+
+These are **unresolved here**, not permission to choose the most convenient interpretation. Use the current SDK/runner, save the smallest replay, and request organizer clarification where the written rules contradict themselves.
+
+| Priority | Uncertain or easy-to-misread rule | Smallest useful check; safe policy meanwhile |
 | --- | --- | --- |
-| Smoke test | 10–20 varied completed games plus focused boundary cases | Detect gross faults and verify the intended behavior occurs; not a win-rate claim. |
-| Screen one hypothesis | 50–100 reasonably diverse games | Reject a large regression or identify a promising effect; modest gains remain uncertain. |
-| Promote an important change | Start with 200–400 games across a fixed panel and held-out scenarios | Useful evidence for substantial gains, provided uncertainty and subgroup results support them. It is not an automatic pass threshold. |
-| Resolve a small gain | Potentially thousands of fresh, diverse games | Often poor use of the first week. Prefer a larger opportunity or retain the simpler bot if uncertainty remains. |
+| **P0** | **Camp range and sleep conflict inside the handbook.** Table: monolith range 5, clusters 0; prose: all range 3. Sleep: no damage vs no in-range champion. [Camps] | Probe a monolith at distances 3/4/5/6; probe two no-damage rounds while remaining in range versus moving out. Check whether sleep preserves damage. Avoid monolith/poke strategies dependent on the answer. |
+| **P0** | **Capture start versus countdown, respawn occupancy and horizon accounting.** Five-round timer is not five turns from stepping in. [Camps] [Turn] [Objective] | Enter immediately after capture phase, log initiation and every decrement/reward; leave for one phase; contest for one phase; occupy one respawn tile. Try a tribute completing just before/at the configured final round. Observe rewards and score rather than counting local loop iterations. |
+| **P0** | **Reset/action order and one-round stun timing.** The broad action rules do not settle every ordering boundary. [Turn] [Combat] | Test ranged walk → reset → attack; attack → dash; forbidden walk → no-walk spell; Vendetta kill after casting; stun before/after target’s slot under both team orders. Confirm actual allowances after each success/failure. No second cast after a cooldown refresh. |
+| **P0** | **Official lock timestamp and runner defaults.** “17 Oct midnight UK” is not an ISO timestamp; website Python FAQ differs from fuel docs; local round limits may differ. [Event][event] [Fuel] [Objective] | Confirm tournament timestamp, submitted artifact, language multiplier and 2,000-round tournament cap. Freeze by 16 Oct 20:00 BST; do not tune from a silently shortened local run. |
+| **P1** | **Crystal terrain wording and landing revalidation.** “Can reach walls” conflicts with explicit forbidden landing tiles; the handbook does not fully describe a destination becoming occupied during its three-tick channel. [Maps] [Bundle][agents] | Test crossing a wall versus landing on one, and a destination occupied after initiation. Use a known legal free landing; keep a fallback after resolution. |
+| **P1** | **Lock placement cancellation ownership, stacking/replacement and removal sequence.** Owner can tribute through its own lock, but the export broadly says placement cancels existing channels. [Gems] | Place friendly/enemy locks during each side’s tribute; attempt a second lock; test three basic hits with mixed champions and a reset. Place friendly protection before the channel until settled. |
+| **P1** | **Champion interaction boundaries.** Ground-effect friendly fire/target validity, retaliation chains, shield refresh and exact stun refresh are not fully specified in prose. [Combat] [Ren] [Varg] [Ryth] | Probe an ally inside an AoE, two Rens, a fresh shield near expiry, and a repeated stun. Keep planner assumptions conservative until checked against the engine. |
+| **P1** | **Unavailable twelfth champion and evolving published rules.** “Under containment” has no kit. [Event][event] [Roster] | Re-read published roster and [patch notes][patches] before each sprint. Only draft supported published choices; update the source snapshot if rules change. |
 
-For an independent binary win/loss sample near 50%, an approximate 95% confidence-interval half-width is \(1.96\sqrt{0.25/n}\), where \(n\) is the number of independent games:
+## Sources and reading coverage
 
-| Independent games | Approximate half-width in percentage points |
-| --- | --- |
-| 25 | ±20 |
-| 100 | ±10 |
-| 400 | ±5 |
-| 1,600 | ±2.5 |
+All links below are official Cambridge Battlecode sources, checked **13 October 2026**. The [download page][agents] provides `GameRules.md` via a browser download button; it was read in full, including every published champion specification. The [glossary] was read separately. The document is a source-backed strategy proposal, not a report of engine experiments or ladder results.
 
-Thus **55 wins from 100 games is inconclusive against 50%**, not a reliable five-point improvement. These are precision estimates for a single win rate, not sample-size guarantees for detecting an improvement between two versions. Report a Wilson interval for binary results rather than relying on the approximation, especially at small counts or extreme rates.
+- **Handbook and download:** [Handbook home][handbook], [Agents.md / Markdown downloads][agents], [Champion roster][roster], [Glossary][glossary].
+- **All twelve rule chapters:** [The game][objective], [Drafting][draft], [A champion turn][turn], [Maps & movement][maps], [Camps & capture][camps], [Gems & altars][gems], [Combat & abilities][combat], [Items & gold][items], [Vision & wards][vision], [Death, recall & recovery][death], [Fuel][fuel], [Shared memory][memory].
+- **All eleven published kit pages:** [Cassi & Issac][cassi], [Ryth][ryth], [Vesper Vale][vesper], [Prism][prism], [Stellar][stellar], [Vendetta][vendetta], [Marcella][marcella], [Tavi][tavi], [Willow][willow], [Ren][ren], [Varg][varg]. Marcella and Varg were also read in the rendered browser when the page extractor did not return their content.
+- **Schedule and unpublished slot:** [Official event homepage][event]. The twelfth teaser has no linked rules page in the current roster/export. [Patch notes][patches] should be checked for changes; no versioned patch contents were obtained in this read, so none are asserted here.
 
-**Important qualifications:**
-
-- Side-swapped games, shared maps, repeated opponents, and reused random seeds can produce correlated results. Report both game count and independent scenario blocks; do not count every repeat as fresh evidence. Many games against one opponent cannot establish broad strength.
-- For matched candidate/control results, compare their **per-block performance differences**, keeping related games together. Use uncertainty over independent blocks, such as a block bootstrap, rather than treating both samples as unrelated coin flips.
-- Report wins/draws/losses separately. Use the revealed competition's draw scoring for the primary metric; only use wins plus half draws if that convention actually applies. Binary-win intervals do not automatically apply to fractional scores, placements, or multi-player results.
-- Predeclare the experiment budget, main metric, opponent/scenario weighting, and minimum worthwhile gain. Do not stop the first time a favorable result appears or try many settings and quote only the winner. Confirm the selected candidate on fresh held-out cases.
-- Zero failures is not proof of safety. Under independent comparable trials, zero faults in 100 games still permits a true fault probability of roughly 3% at a one-sided 95% bound. Targeted boundary tests remain necessary.
-
-**Promotion rule:** accept when the targeted failure is fixed, broad results support the intended gain without unacceptable subgroup regressions, and legality/compute remain sound. When evidence is inconclusive, keep the incumbent or explicitly record a risk-based decision; do not relabel uncertainty as a proven improvement.
-
-### Use the ladder as external validation, not a laboratory
-
-- Snapshot our version, observed opponents, and the time window. Opponents change while we test; rating changes also reflect scheduling, population, map mix, and rating uncertainty. A rank jump alone cannot attribute an improvement to our edit.
-- Seek varied permitted matchups: strong, similar-strength, and strategically different opponents. Keep a general-purpose benchmark rather than tuning only against the current leader or a single rival. Respect challenge limits and competition rules.
-- Self-play measures progress against our own assumptions. It can miss strategies no version of our bot uses and can produce non-transitive results: A beats B, B beats C, C beats A. Maintain a matchup matrix, not just one scalar rating.
-- When local and ladder results disagree, inspect the changed opponent/scenario distribution and replays before choosing which evidence applies. Just Woke Up describes all-map A/B tests and improvements whose value against aggressive external opponents was not captured by its older bots. [2, pp. 7–8, 18–19]
-- Treat each sprint as another sample, not final proof. If official tournaments use sets or special scoring, evaluate that format too once known. Protect the accepted submission and allow time for ladder seeding to reflect it.
-
-### Replay losses with a falsifiable question
-
-Review every failure caused by a crash, invalid action, or timeout; then sample losses across opponents/scenarios and inspect surprising wins too. Avoid fixing only the most dramatic replay.
-
-1. Find the **earliest avoidable decision** that plausibly changed the outcome, not merely the final bad position.
-2. Classify it: misunderstood rule, execution fault, missed scoring conversion, wasted action, poor information use, bad estimate, insufficient planning horizon, or wrong opponent prediction.
-3. Write a counterfactual using only information the bot could have known at that point. Replay omniscience is not a legal policy.
-4. Reproduce the failure in the original fixture and, if tools permit, a smaller distinguishing case. Change one explanation at a time and retest neighboring states, other roles, and the wider panel.
-5. Keep the failing fixture as a regression case. Record when the explanation was disproved as well as when it worked.
-
-**Experiment record template:** hypothesis; predicted winning/losing cases; baseline and candidate IDs; official rules version; controlled variables; primary metric and worthwhile gain; fixed budget; W/D/L and uncertainty; subgroup results; replay explanation; accept/reject/inconclusive; next test.
-
-## 4. Pre-mortem: five ways to waste the first week
-
-These are recurring risks drawn from the retrospectives, not a measured ranking of all teams' failures.
-
-| Failure mode | Early warning | Our prevention and recovery |
-| --- | --- | --- |
-| **1. Build infrastructure or advanced search before a scoring bot exists.** | Most effort goes into abstractions, custom tooling, or a simulator; no complete match can be inspected. | Start from the official execution path and reach a legal scoring attempt first. Give each infrastructure task a current bottleneck and a short timebox. Use heuristics until losses demonstrate a planning need. |
-| **2. Optimize an imagined or misunderstood game.** | We equate collected gems with victory, assume MIT mechanics, or cannot explain tiebreaks and turn order. | Maintain section 5 with source-backed answers; use boundary examples and teammate teach-backs. Recheck affected conclusions after every rules patch. Delete assumptions when contradicted rather than defending prior effort. |
-| **3. Tune to a tiny, friendly sample.** | One favorable replay, one ladder jump, or beating yesterday's bot becomes “proof.” | Use fixed matched tests, multiple opponent styles, role rotation, held-out cases, and uncertainty. Review losses and surprising wins. Keep genuine external weaknesses visible even if self-play improves. |
-| **4. Perfect a low-impact subsystem or chase a clever idea too long.** | Repeated rewrites or parameter sweeps do not address the most frequent costly losses. | Estimate frequency × match impact × confidence, then compare with development hours. Timebox experiments; remove unsuccessful complexity. Revisit simple scoring conversion and wasted-action fixes first. The Kragle explicitly reports this opportunity-cost failure. [3, §3.1] |
-| **5. Lose the working bot to rushed integration, deadline mistakes, or burnout.** | Unreviewed bundles of changes, uncertain submitted version, no rollback, or all-night sessions replacing analysis. | Keep a known-good version, integrate small changes daily, and assign a submission owner. Reserve a pre-lock verification window, confirm upload acceptance and seeding timing, and keep sustainable shifts/rest. Test the exact final artifact under the official runner; revert if it cannot be verified in time. [2, pp. 22–23; 4, §4.3.3] |
-
-## 5. Reveal-day open-questions worksheet
-
-**Complete the P0 rows first, ideally within the first hour.** Unknown is an acceptable answer only with an owner and a next check. P1 rows should be answered in the first few hours or explicitly deferred. Promote any P1 question to P0 if the baseline depends on it. Mark absent mechanics N/A; do not design around them.
-
-For each row fill: **answer; official source/version; confidence (documented / observed / hypothesis); distinguishing probe/result; owner; checked-at time; strategy consequence**.
-
-| Priority / area | Questions to settle | Answer / evidence / owner |
-| --- | --- | --- |
-| **P0 · Win condition** | What exactly ends a game and chooses the winner? What does an offering contribute? Do collected but unoffered gems count? Are there alternate wins, thresholds, losses, or disqualifications? Is score difference relevant to match/ladder ranking? | TBD |
-| **P0 · Action economy** | What decisions are available, by whom, and how often? How many participants and controlled entities are there? Are turns sequential or simultaneous? Can actions combine? What consumes time/resources? What happens on invalid actions, no actions, or conflicting choices? | TBD |
-| **P0 · Compute limits and lifecycle** | Which languages/runtime versions and interfaces are supported? What are the exact per-turn, initialization, and whole-game budgets and units? Do limits differ by language? What happens on timeout? What are memory, persistence, randomness, I/O, dependency, and submission constraints? | TBD |
-| **P0 · Draw rules and horizon** | Is there a turn/time cap, repetition or stalemate rule? What is the complete ordered tiebreak list? Can outcomes genuinely draw, and how are draws scored in ladder, sets, and qualification? When does final scoring occur? | TBD |
-| **P1 · Gems and altars** | How are gems obtained and replenished, if at all? How does eligibility to offer work? Are there costs, capacity limits, ownership restrictions, access restrictions, or offering delays? Can collected or offered value be lost, transferred, spent, or reversed? | TBD |
-| **P1 · Map and terrain** | Is there a spatial map at all? If so, what representation, dimensions, movement rules, distances, terrain effects, connectivity, starting roles, and symmetry guarantees exist? Are scenarios fixed, generated, public, or withheld? | TBD |
-| **P1 · Information asymmetry** | What is visible initially and later, globally versus locally, and with what delay? What opponent information is exposed? Are there hidden actions or stochastic events? Is memory persistent? If multiple entities exist, what communication is legal? | TBD |
-| **P1 · Reproducibility and tools** | Is the engine deterministic given a seed? Can we select seeds, exchange roles, run local matches, inspect replays/logs, construct scenarios, or obtain permitted opponent bots? Does the local engine exactly match ranked play? | TBD |
-| **P1 · Competition operations** | What are exact submission-lock and ladder-seeding timestamps in Europe/London, rating rules, challenge limits, patch policy, and tournament format? Are submissions immutable at lock? How do we verify which artifact is active? What reuse, collaboration, and opponent-data rules apply? | TBD |
-
-**First-hours sign-off:** we can explain how to win, produce a legal decision within the real budget, follow one collection/offering sequence through the official result, reproduce or identify a match, and name the strongest unresolved assumption. Everything else goes into a prioritized experiment queue.
-
-## Sources and limits of transfer
-
-Sources checked on **12 October 2026**. Retrospectives are first-person experience, not controlled evidence that a technique will work in Cambridge. Numerical testing budgets and workflow gates above are our proposed defaults. No historical game mechanic is a Cambridge fact.
-
-1. **[Cambridge Battlecode ’26 Autumn — official site](https://2026a.battlecode.co.uk/).** Source for the announced objective, season/format, and delayed reveal banner. The conflicting older reveal wording is noted above; the full rules/API remain the authority once released.
-2. **[Tim Gubskiy and Andy Nguyen, “Just Woke Up — BattleCode 2025 Postmortem”](https://battlecode.org/assets/files/postmortem-2025-just-woke-up.pdf).** See “Automations / AB Testing” and “Automatic Scrimmaging” (pp. 7–8), finals changes (pp. 18–19), and tips (pp. 20–23). Lessons used: begin simply, compare across maps, watch replays, distinguish self-play from external matchups, and iterate sustainably. Do not transfer its combat or resource mechanics.
-3. **[Justin Ottesen, Andrew Bank, and Matt Voynovich, “The Kragle — Battlecode 25 Postmortem”](https://battlecode.org/assets/files/postmortem-2025-the-kragle.pdf).** See §2.2.5 on unreliable/expensive pathfinding and §§3.1–3.3 on development priorities, resource efficiency, and learning from opponents. Lessons used: quantify opportunity cost and avoid polishing behavior that does not change matches. Its economy-first and map assumptions are not adopted here.
-4. **[David Lyons, “5 Musketeers — Battlecode 2022 Strategy Guide”](https://battlecode.org/assets/files/postmortem-2022-5-musketeers.pdf).** See §4.1.8 on a turn-order assumption breaking under state changes, §4.2.1 on tiebreak strategy, §4.3.3 on late improvements missing seeding, and §6 on testing against multiple saved versions. Lessons used: test lifecycle edges, read terminal rules, preserve diverse controls, and treat delivery timing as part of performance.
+[handbook]: https://2026a.battlecode.co.uk/game/docs
+[agents]: https://2026a.battlecode.co.uk/game/docs/agents
+[objective]: https://2026a.battlecode.co.uk/game/docs/objective
+[draft]: https://2026a.battlecode.co.uk/game/docs/draft
+[turn]: https://2026a.battlecode.co.uk/game/docs/your-first-turn
+[maps]: https://2026a.battlecode.co.uk/game/docs/maps-and-movement
+[camps]: https://2026a.battlecode.co.uk/game/docs/camps
+[gems]: https://2026a.battlecode.co.uk/game/docs/gems-and-scoring
+[combat]: https://2026a.battlecode.co.uk/game/docs/combat
+[items]: https://2026a.battlecode.co.uk/game/docs/items
+[vision]: https://2026a.battlecode.co.uk/game/docs/vision
+[death]: https://2026a.battlecode.co.uk/game/docs/death-and-recall
+[fuel]: https://2026a.battlecode.co.uk/game/docs/fuel
+[memory]: https://2026a.battlecode.co.uk/game/docs/shared-memory
+[glossary]: https://2026a.battlecode.co.uk/game/docs/glossary
+[roster]: https://2026a.battlecode.co.uk/game/docs/champions
+[cassi]: https://2026a.battlecode.co.uk/game/docs/cassi-and-issac
+[ryth]: https://2026a.battlecode.co.uk/game/docs/ryth
+[vesper]: https://2026a.battlecode.co.uk/game/docs/vesper-vale
+[prism]: https://2026a.battlecode.co.uk/game/docs/prism
+[stellar]: https://2026a.battlecode.co.uk/game/docs/stellar
+[vendetta]: https://2026a.battlecode.co.uk/game/docs/vendetta
+[marcella]: https://2026a.battlecode.co.uk/game/docs/marcella
+[tavi]: https://2026a.battlecode.co.uk/game/docs/tavi
+[willow]: https://2026a.battlecode.co.uk/game/docs/willow
+[ren]: https://2026a.battlecode.co.uk/game/docs/ren
+[varg]: https://2026a.battlecode.co.uk/game/docs/varg
+[event]: https://2026a.battlecode.co.uk/
+[patches]: https://2026a.battlecode.co.uk/game/patch-notes
