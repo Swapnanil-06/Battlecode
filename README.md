@@ -1,4 +1,4 @@
-# Battlecode — CAMBC '26 Autumn
+# Battlecode - CAMBC '26 Autumn
 
 A bot developed for the [Cambridge Battlecode '26 Autumn](https://2026a.battlecode.co.uk) competition.
 
