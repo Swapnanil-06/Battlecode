@@ -65,3 +65,15 @@ target/
 *.log
 replays/
 matches/
+.cambc/
+bots/*/.cambc/
+bots/*/build/
+bots/*/target/
+
+# CAMBC-generated SDK, toolchain integration, map pool and reference opponents.
+/sdk/
+/cmake/
+/maps/
+/bots/starter-*/
+*.wasm
+*.repl26a
