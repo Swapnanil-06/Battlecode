@@ -77,3 +77,4 @@ bots/*/target/
 /bots/starter-*/
 *.wasm
 *.repl26a
+submissions/
