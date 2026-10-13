@@ -59,6 +59,7 @@ def exchange(ours, enemies, gaps, target, cast=-1, moved=False):
     shield = 0
     if cast >= 0 and ours['spells'][cast][0] == 'shield':
         shield = ours['spells'][cast][3]
+        used = cast
     incoming, replies = 0, []
     interrupted = False
     for index, enemy in enumerate(enemies):

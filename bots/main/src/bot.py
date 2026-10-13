@@ -23,9 +23,20 @@ def blocked_tiles():
     # Combine terrain and visible occupants using native bitboard operations.
     blocked = (game_map.walls() | game_map.holes() | game_map.altars()
                | game_map.spawn_region(Team.ENEMY) | cambc.vision.champion_tiles()
-               | cambc.vision.camp_tiles() | cambc.vision.teleport_tiles())
+               | cambc.vision.camp_tiles() | cambc.vision.teleport_tiles()
+               | cambc.vision.ward_tiles())
     blocked.set(cambc.me().position(), False)
     return blocked
+
+
+def safe_move(tile):
+    me = cambc.me()
+    if not me.can_move():
+        return False
+    try:
+        return me.move_absolute(tile)
+    except Exception:
+        return False
 
 
 def move_towards_closest(goals, avoid=None):
@@ -48,27 +59,31 @@ def move_towards_closest(goals, avoid=None):
     field.compute_to(blocked & ~goals, goals, tiles_around(origin, 0), cambc.Bitboard())
 
     # Dash legality differs from walking: holes can be crossed but not landed on.
-    dashed = False
     for ability in me.abilities():
         if ability.is_dash() and ability.is_ready():
             transit = blocked & ~game_map.holes()
             landings = transit.reachable_tiles(origin, int(ability.info().range)) & ~blocked
             choices = [origin, *landings.positions()]
             landing = min(choices, key=field.get)
-            if field.get(landing) + 1 < field.get(origin) and ability.use(landing):
-                dashed = True
-                origin = me.position()
-                blocked = blocked_tiles()
-                if avoid is not None:
-                    blocked |= avoid
-                    blocked.set(origin, False)
-                break
+            if field.get(landing) + 1 < field.get(origin):
+                try:
+                    if ability.use(landing):
+                        return True
+                except Exception:
+                    pass
 
     # Choose a reachable step with a smaller distance to the goal.
+    if not me.can_move():
+        return False
+    blocked = blocked_tiles()
+    if avoid is not None:
+        blocked |= avoid
+        blocked.set(origin, False)
     reachable = blocked.reachable_tiles(origin, me.base_stats().base_move_speed)
     step = min([origin, *reachable.positions()], key=field.get)
-    walked = step != origin and me.can_move() and me.move_absolute(step)
-    return walked or dashed
+    if step == origin or blocked.is_set(step):
+        return False
+    return safe_move(step)
 
 
 def attack_if_in_range(target):
@@ -85,7 +100,7 @@ def attack_if_in_range(target):
     if me.can_cast() and alive and target.health() > 0:
         for ability in me.abilities():
             if ability.is_attack_reset() and ability.is_ready():
-                if ability.use() and me.can_attack():
+                if not me.can_attack() and ability.use() and me.can_attack():
                     if target.is_visible() and target.health() > 0:
                         me.attack(target)
                 break
@@ -137,18 +152,25 @@ class Bot:
             for camp in self.group:
                 if self.farm_attack(camp):
                     return
-        allies = cambc.vision.champions(Team.ALLY)
+        allies = [a for a in cambc.vision.champions(Team.ALLY) if a.is_visible()]
         blocked = blocked_tiles()
         field, reached = cambc.DistanceField(), cambc.Bitboard()
         field.compute(blocked, tiles_around(me.position(), 0), reached)
         best, best_value = None, -1
+        def camp_group_priority(group):
+            camp0 = group.camps()[0]
+            dist = distance(me.position(), camp0.spawn_position())
+            has_gems = group.gem_value() > 0
+            is_gem_cluster = any(camp.is_gem_cluster() for camp in group)
+            tier = 0 if is_gem_cluster else (1 if has_gems else 2)
+            return (tier, dist)
+
         nearby = sorted((group for group in self.groups
-                         if self.respawns.get(int(group), 0) <= now), key=lambda group:
-                        distance(me.position(), group.camps()[0].spawn_position()))
-        candidates = ([self.group] if self.group is not None else []) + nearby[:8]
+                         if self.respawns.get(int(group), 0) <= now), key=camp_group_priority)
+        candidates = ([self.group] if self.group is not None else []) + nearby[:16]
         for group in candidates:
             # Keep enough fuel for pathing and actions; never resume a stale plan.
-            if cambc.fuel_remaining() < 1200000:
+            if cambc.fuel_remaining() < 350000:
                 if best is None:
                     return  # A cut scan is not evidence that there are no camps.
                 break
@@ -173,8 +195,10 @@ class Bot:
             camps = []
             for camp in group:
                 stats = camp.base_stats()
-                if occupied_camps.is_set(camp.spawn_position()):
+                if camp.is_visible():
                     health = camp.health()
+                elif occupied_camps.is_set(camp.spawn_position()):
+                    health = stats.base_health
                 else:
                     health = 0 if visible.is_set(camp.spawn_position()) else stats.base_health
                 if not capturing and health > 0:
@@ -190,12 +214,8 @@ class Bot:
             approach = min(approaches.positions(), key=field.get)
             travel = field.get(approach)
 
-            # Budget the whole connected group, reducing retaliation as members die.
-            # The SDK exposes the champion's PvE multiplier; raw Strength is not DPS.
+            # Budget with solo DPS: never assume leaving allies will help
             dps = me.strength() * me.base_stats().camp_damage_multiplier
-            for ally in allies:
-                if ally != me and distance(ally.position(), me.position()) <= 4:
-                    dps += ally.strength() * ally.base_stats().camp_damage_multiplier
             incoming, clear_turns = 0, 0
             remaining = sum(strength for _, _, strength in camps)
             for camp, health, strength in sorted(camps, key=lambda entry: entry[1]):
@@ -203,23 +223,23 @@ class Bot:
                 incoming += turns * remaining
                 clear_turns += turns
                 remaining -= strength
-            bank_travel = min(distance(approach, altar) for altar in game_map.altars().positions())
+            bank_travel = min(distance(approach, altar) for altar in self.altars)
             time = travel + clear_turns + cambc.constants.CAPTURE_TIME + 1 + bank_travel
             time += ceil(group.gem_value() / 10)
-            value = (group.gem_value() + group.gold_value() * 0.12) / max(1, time)
+            # Prioritize high gem value objectives (e.g. standalone gem clusters)
+            value = (group.gem_value() * 1.5 + group.gold_value() * 0.1) / max(1, time)
+            if group.gem_value() == 0:
+                value *= 0.001
             risk = incoming + self.danger(approach, 3)
             if risk > me.health() - me.max_health() * 0.25:
-                # Prefer complete safe clears. On all-elk maps there may be none;
-                # retain a slow fallback instead of waiting forever at spawn.
+                # Prefer complete safe clears.
                 value *= 0.1 * me.health() / max(me.health(), risk)
-            solo_damage = incoming * dps / max(1, me.strength() * me.base_stats().camp_damage_multiplier)
-            if solo_damage < me.health() * 0.75:
-                our_claim = (distance(me.position(), approach), int(me))
-                if any(ally != me and not ally.gem_count() and not ally.is_recalling()
-                       and (distance(ally.position(), approach), int(ally)) < our_claim
-                       for ally in allies):
-                    # Spread solo farmers; keep co-operation for groups that need it.
-                    value *= 0.35
+            # Spread solo farmers; downweight groups closer to an ally
+            for ally in allies:
+                if ally != me and not ally.gem_count() and not ally.is_recalling():
+                    ally_dist = distance(ally.position(), approach)
+                    if ally_dist < travel or (ally_dist == travel and int(ally) < int(me)):
+                        value *= 0.35
             # Finish the chosen group rather than bouncing between equal alternatives.
             if group == self.group:
                 value *= 1.2
@@ -227,9 +247,6 @@ class Bot:
                 best, best_value = group, value
         self.group = best
         if best is None:
-            # Vacate claimed regions so they can respawn; recover if no safe clear exists.
-            if not game_map.spawn_region(Team.ALLY).is_set(me.position()):
-                self.retreat()
             return
         for camp in best:
             if self.farm_attack(camp):
@@ -272,79 +289,91 @@ class Bot:
 
     def combat_turn(self):
         me = cambc.me()
-        enemies = cambc.vision.champions(Team.ENEMY)
-        if not enemies or min(distance(me.position(), e.position()) for e in enemies) > 6:
+        enemies = [e for e in cambc.vision.champions(Team.ENEMY) if e.is_visible() and e.is_alive()]
+        if not enemies:
             return False
-        # Snapshot once, then evaluate at most two targets, two positions and three
-        # casts. No full-map search, no SDK queries inside the exchange rollout.
-        if cambc.fuel_remaining() < 1600000:
-            self.retreat()
-            return True
-        ours = self.fighter(me)
-        foes = [self.fighter(enemy) for enemy in enemies]
-        positions = [enemy.position() for enemy in enemies]
         origin = me.position()
-        blocked = blocked_tiles()
-        steps = [origin, *blocked.reachable_tiles(origin, me.base_stats().base_move_speed).positions()]
-        targets = sorted(range(len(enemies)), key=lambda i:
-                         (not enemies[i].is_submitting_gems(), foes[i]['health'] - enemies[i].gem_count() * 3))[:2]
-        best, best_value = None, float('-inf')
-        for target in targets:
-            tiles = [origin]
-            if not me.gem_count() and me.can_move():
-                step = min(steps, key=lambda p: distance(p, positions[target]))
-                if step != origin:
-                    tiles.append(step)
-            for tile in tiles:
-                gaps = [distance(tile, p) for p in positions]
-                for cast in (-1, 0, 1):
-                    if cambc.fuel_remaining() < 950000:
-                        break
-                    if cast >= 0:
-                        ability = me.abilities()[cast]
+        min_dist = min(distance(origin, e.position()) for e in enemies)
+        if min_dist > 6:
+            return False
+
+        # Run combat planner to evaluate burst and incoming damage
+        if cambc.fuel_remaining() > 700000 and len(enemies) <= 5:
+            ours = self.fighter(me)
+            foes = [self.fighter(e) for e in enemies]
+            gaps = [distance(origin, e.position()) for e in enemies]
+            for target_idx in range(len(enemies)):
+                for cast_idx in (-1, 0, 1):
+                    if cast_idx >= 0:
+                        ability = me.abilities()[cast_idx]
                         if not ability.is_ready() or ability.is_dash():
                             continue
-                        if tile != origin and ability.info().exclusive_with_movement:
-                            continue
-                    outgoing, incoming, first = exchange(ours, foes, gaps, target, cast, tile != origin)
+                    outgoing, incoming, first = exchange(ours, foes, gaps, target_idx, cast_idx, False)
                     self.plan_count += 1
-                    incoming += 2 * sum(s for p, s, r in self.camp_threats if distance(tile, p) <= r)
-                    # Carrier life costs more than a favorable damage trade. Require
-                    # a finish, not a speculative chase, before committing its bag.
-                    kill = outgoing >= foes[target]['health']
-                    safe = incoming < me.health() - me.max_health() * (0.3 if me.gem_count() else 0.2)
-                    if not safe or not first or (me.gem_count() and not kill):
-                        continue
-                    value = outgoing - incoming * (2 if me.gem_count() else 1.1)
-                    value += (500 + enemies[target].gem_count() * 4) if kill else 0
-                    if value > best_value:
-                        best_value = value
-                        best = tile, cast, enemies[target]
-        if best is not None and best_value > 0:
-            tile, cast, target = best
-            if tile != origin and not me.move_absolute(tile):
-                return True  # Hidden blocker revealed; reobserve next turn.
-            if not target.is_visible() or not target.is_alive():
-                return True
-            ability = me.abilities()[cast] if cast >= 0 else None
-            if ability is not None and not ability.is_attack_reset():
-                if ability.is_shield():
+
+        # 1. Immediate in-range defense / opportunity: if any enemy is in attack or spell range, fight!
+        in_attack_range = [e for e in enemies if me.attack_tiles().is_set(e.position())]
+        submitting_enemies = [e for e in enemies if e.is_submitting_gems()]
+
+        # Pre-attack spells: shield if threatened, or CC an enemy
+        if me.can_cast() and origin == self.turn_origin:
+            for ability in me.abilities():
+                if not ability.is_ready():
+                    continue
+                if ability.is_shield() and min_dist <= 3:
                     ability.use(me)
-                elif distance(me.position(), target.position()) <= ability.info().range:
-                    ability.use(target if ability.can_target_enemies() else target.position())
+                    break
+                if ability.is_cc():
+                    cc_targets = [e for e in enemies if distance(origin, e.position()) <= ability.info().range
+                                  and e.passive() != cambc.PassiveType.STUN_IMMUNITY and not e.buffs().has_stun()]
+                    if cc_targets:
+                        best_cc = max(cc_targets, key=lambda e: (e.is_submitting_gems(), e.gem_count(), e.strength()))
+                        ability.use(best_cc if ability.can_target_enemies() else best_cc.position())
+                        attack_if_in_range(best_cc)
+                        if ability.info().exclusive_with_movement and not me.can_attack():
+                            return True
+                        break
+                elif (ability.is_damage() or ability.is_aoe_damage()):
+                    dmg_targets = [e for e in enemies if distance(origin, e.position()) <= ability.info().range]
+                    if dmg_targets:
+                        best_dmg = min(dmg_targets, key=lambda e: e.health())
+                        ability.use(best_dmg if ability.can_target_enemies() else best_dmg.position())
+                        attack_if_in_range(best_dmg)
+                        if ability.info().exclusive_with_movement and not me.can_attack():
+                            return True
+                        break
+
+        # If any enemy is in attack range, strike them!
+        if in_attack_range:
+            target = max(in_attack_range, key=lambda e: (e.is_submitting_gems(), e.gem_count() * 4, -e.health()))
             attack_if_in_range(target)
-            # Ranged walk -> reset -> attack, including when the ordinary attack
-            # helper could not fire at all after movement.
-            if (ability is not None and ability.is_attack_reset() and ability.is_ready()
-                    and target.is_visible() and target.is_alive()
-                    and distance(me.position(), target.position()) <= me.attack_range()):
-                ability.use()
-                if me.can_attack():
-                    me.attack(target)
+            near_altar = min(distance(origin, a) for a in self.altars) <= 1
+            if me.gem_count() > 0 and not near_altar and me.health() < me.max_health() * 0.4:
+                self.retreat()
             return True
-        if me.gem_count() or self.danger(origin, 2) > me.health() * 0.3:
-            self.retreat()
-            return True
+
+        # 2. For non-carriers: if an enemy carrier or submitting enemy or close enemy is nearby, close in and attack!
+        if me.gem_count() == 0 and me.health() >= me.max_health() * 0.4:
+            priority_targets = [e for e in enemies if e.is_visible() and (e.is_submitting_gems() or e.gem_count() > 0 or distance(me.position(), e.position()) <= 4)]
+            if priority_targets:
+                target = max(priority_targets, key=lambda e: (e.is_submitting_gems(), e.gem_count() * 4, -e.health(), -distance(me.position(), e.position())))
+                reach = max(1, me.attack_range())
+                if distance(me.position(), target.position()) > reach:
+                    goals = tiles_around(target.position(), reach)
+                    move_towards_closest(goals)
+                if attack_if_in_range(target):
+                    return True
+                for e in enemies:
+                    if attack_if_in_range(e):
+                        return True
+                return True
+
+        # If carrier or low health and enemy is close, retreat to safety
+        cur_pos = me.position()
+        if (me.gem_count() > 0 or me.health() < me.max_health() * 0.4):
+            if any(e.is_visible() and distance(cur_pos, e.position()) <= e.attack_range() + 1 for e in enemies):
+                self.retreat()
+                return True
         return False
 
     def observe_enemies(self):
@@ -352,6 +381,8 @@ class Bot:
         self.enemies = {key: value for key, value in self.enemies.items()
                         if now - value[1] <= 8}
         for enemy in cambc.vision.champions(Team.ENEMY):
+            if not enemy.is_visible():
+                continue
             self.enemies[int(enemy)] = (enemy.position(), now, enemy.strength(),
                                         enemy.attack_range(), enemy.focus())
         self.camp_threats = [(camp.position(), camp.strength(), camp.attack_range())
@@ -372,6 +403,8 @@ class Bot:
     def enemy_zones(self):
         zones = cambc.Bitboard()
         for enemy in cambc.vision.champions(Team.ENEMY):
+            if not enemy.is_visible():
+                continue
             reach = enemy.attack_range() + enemy.base_stats().base_move_speed
             for ability in enemy.abilities():
                 if ability.cooldown() <= 1:
@@ -390,15 +423,20 @@ class Bot:
     def retreat(self):
         me = cambc.me()
         origin = me.position()
-        # Never repeatedly start an interruptible recall under ongoing camp damage.
+
         def exposure(tile):
             return self.channel_damage(tile, 2)
 
-        if exposure(origin) == 0:
+        enemies = cambc.vision.champions(Team.ENEMY)
+        enemy_info = [(e.position(), e.attack_range(), e) for e in enemies
+                      if e.is_visible() and distance(origin, e.position()) <= 8]
+
+        # Never start an interruptible recall if enemies are nearby or under camp attack!
+        if not enemy_info and exposure(origin) == 0:
             me.recall()
             return
-        # Defensive stun/shield before walking; these spells cannot be appended
-        # to a normal move. A ranged stun buys an escape turn, not a chase.
+
+        # 1. Defensive abilities before moving: shield or CC
         for ability in me.abilities():
             if not ability.is_ready():
                 continue
@@ -406,8 +444,9 @@ class Bot:
                 ability.use(me)
                 break
             if ability.is_cc() and origin == self.turn_origin:
-                targets = [e for e in cambc.vision.champions(Team.ENEMY)
-                           if distance(origin, e.position()) <= ability.info().range
+                targets = [e for p, r, e in enemy_info
+                           if e.is_visible() and e.is_alive()
+                           and distance(origin, p) <= ability.info().range
                            and e.passive() != cambc.PassiveType.STUN_IMMUNITY
                            and not e.buffs().has_stun()]
                 if targets:
@@ -417,28 +456,59 @@ class Bot:
                     if ability.info().exclusive_with_movement:
                         return
                     break
+
+        # 2. Dash to escape: choose landing that maximizes distance to closest enemy
         for ability in me.abilities():
             if ability.is_dash() and ability.is_ready():
                 blocked = blocked_tiles()
-                landings = (blocked & ~game_map.holes()).reachable_tiles(
-                    origin, int(ability.info().range)) & ~blocked
-                landing = min([origin, *landings.positions()], key=exposure)
-                if exposure(landing) < exposure(origin) and ability.use(landing):
-                    origin = me.position()
-                    break
+                transit = blocked & ~game_map.holes()
+                landings = transit.reachable_tiles(origin, int(ability.info().range)) & ~blocked
+                landings &= ~game_map.spawn_region(Team.ENEMY)
+                choices = [origin, *landings.positions()]
+                if enemy_info:
+                    cur_min = min(distance(origin, p) for p, r, e in enemy_info)
+                    def dash_score(tile):
+                        e_dist = min(distance(tile, p) for p, r, e in enemy_info)
+                        c_threat = sum(s for p, s, r in self.camp_threats if distance(tile, p) <= r)
+                        return (e_dist, -c_threat)
+                    best_landing = max(choices, key=dash_score)
+                    if min(distance(best_landing, p) for p, r, e in enemy_info) > cur_min:
+                        if ability.use(best_landing):
+                            origin = me.position()
+                            break
+                else:
+                    landing = min(choices, key=exposure)
+                    if exposure(landing) < exposure(origin) and ability.use(landing):
+                        origin = me.position()
+                        break
+
+        # 3. Walk to flee: step away from enemies, avoid standing in enemy attack ranges
         if me.can_move():
-            field = cambc.DistanceField()
             blocked = blocked_tiles()
-            field.compute(blocked, game_map.spawn_region(Team.ALLY) & ~blocked,
-                          cambc.Bitboard())
-            choices = [origin, *blocked.reachable_tiles(origin, 1).positions()]
-            wards = me.ward_positions()
-            step = min(choices, key=lambda tile: (exposure(tile),
-                       0 if wards and distance(tile, wards[0]) <= 6 else 1, field.get(tile)))
-            if step != origin:
-                me.move_absolute(step)
-        # Melee units can still defend after walking; ranged ones cannot.
-        for enemy in cambc.vision.champions(Team.ENEMY):
+            reachable = [origin, *blocked.reachable_tiles(origin, me.base_stats().base_move_speed).positions()]
+            if enemy_info:
+                def flee_step_score(tile):
+                    in_range = any(distance(tile, p) <= r for p, r, e in enemy_info)
+                    in_walk_range = any(distance(tile, p) <= r + 1 for p, r, e in enemy_info)
+                    min_dist = min(distance(tile, p) for p, r, e in enemy_info)
+                    danger_pen = (1000 if in_range else (300 if in_walk_range else 0)) - min_dist * 25
+                    goal_dist = (min(distance(tile, a) for a in self.altars) if me.gem_count() > 0
+                                 else min(distance(tile, s) for s in game_map.spawn_region(Team.ALLY).positions()[:4]))
+                    return danger_pen + goal_dist + exposure(tile)
+                step = min(reachable, key=flee_step_score)
+                if step != origin and not blocked.is_set(step):
+                    safe_move(step)
+            else:
+                field = cambc.DistanceField()
+                field.compute(blocked, game_map.spawn_region(Team.ALLY) & ~blocked, cambc.Bitboard())
+                wards = me.ward_positions()
+                step = min(reachable, key=lambda tile: (exposure(tile),
+                           0 if wards and distance(tile, wards[0]) <= 6 else 1, field.get(tile)))
+                if step != origin and not blocked.is_set(step):
+                    safe_move(step)
+
+        # 4. Defend with basic attack / reset if enemy is in range
+        for enemy in [e for e in cambc.vision.champions(Team.ENEMY) if e.is_visible()]:
             if attack_if_in_range(enemy):
                 break
 
@@ -447,67 +517,87 @@ class Bot:
         duration = max(cambc.constants.SUBMIT_GEM_MINIMUM_DURATION,
                        ceil(me.gem_count() * cambc.constants.SUBMIT_GEM_DURATION_MULTIPLIER
                             + cambc.constants.SUBMIT_GEM_BASE_DURATION))
-        avoid = self.enemy_zones()
-        blocked = blocked_tiles() | avoid
-        blocked.set(me.position(), False)
-        field, reached = cambc.DistanceField(), cambc.Bitboard()
-        field.compute(blocked, tiles_around(me.position(), 0), reached)
-        options = []
+        origin = me.position()
+        altars = sorted(self.altars, key=lambda altar: distance(origin, altar))
         enemy_locks = cambc.vision.altar_lock_tiles(Team.ENEMY)
-        altars = sorted(self.altars, key=lambda altar: distance(me.position(), altar))
+
+        blocked = blocked_tiles()
+        field, reached = cambc.DistanceField(), cambc.Bitboard()
+        field.compute(blocked, tiles_around(origin, 0), reached)
+        options = []
         for altar in altars:
             if enemy_locks.is_set(altar):
                 continue
             approaches = tiles_around(altar, cambc.constants.SUBMIT_GEMS_RANGE) & reached & ~blocked
             if approaches.is_empty():
                 continue
-            # Evaluate every altar, not a fuel-dependent prefix of neighbor tiles.
             tile = min(approaches.positions(), key=field.get)
             travel = field.get(tile)
             risk = self.channel_damage(tile, duration + min(travel, 4))
             inertia = -4 if altar == self.bank_altar else 0
             options.append((travel + risk / max(1, me.strength()) + inertia, tile, altar))
         if not options:
-            # A visible enemy lock is removable in three hits, not an unavailable altar.
             locks = cambc.vision.altar_locks(Team.ENEMY)
             if locks:
-                lock = min(locks, key=lambda lock: distance(me.position(), lock.position()))
+                lock = min(locks, key=lambda l: distance(origin, l.position()))
                 if me.can_attack() and me.attack_tiles().is_set(lock.position()):
                     me.attack(lock)
+                    if me.can_cast():
+                        for a in me.abilities():
+                            if a.is_attack_reset() and a.is_ready():
+                                if a.use() and me.can_attack():
+                                    me.attack(lock)
+                                break
+                    return
                 else:
-                    move_towards_closest(tiles_around(lock.position(), 1), avoid)
+                    move_towards_closest(tiles_around(lock.position(), 1))
             else:
                 self.retreat()
             return
         _, tile, altar = min(options, key=lambda option: option[0])
         self.bank_altar = altar
+
+        # Place altar lock if we have one within range 2
         lock = me.consumables()[cambc.ConsumableType.ALTAR_LOCK]
-        if (lock.count() and distance(me.position(), altar) <= 2
+        if (lock.count() > 0 and distance(origin, altar) <= 2
                 and not cambc.vision.has_altar_lock(altar)
-                and any(distance(enemy.position(), altar) <= 8
-                        for enemy in cambc.vision.champions(Team.ENEMY))
                 and not any(ally.is_submitting_gems() and distance(ally.position(), altar) <= 1
-                            for ally in cambc.vision.champions(Team.ALLY))):
-            # Place before our tribute; do not risk cancelling an ally's live channel.
+                            for ally in cambc.vision.champions(Team.ALLY) if ally.is_visible())):
             lock.use(altar)
-        if distance(me.position(), altar) <= cambc.constants.SUBMIT_GEMS_RANGE:
-            # Starting turn counts, but completion is at a later turn start: budget
-            # enemy actions through the entire countdown, including a one-tick bank.
-            safe = self.channel_damage(me.position(), duration) < me.health() - me.max_health() * 0.15
-            if me.champion_name() != cambc.ChampionType.MARCELLA and duration > 1:
-                for enemy in cambc.vision.champions(Team.ENEMY):
-                    if distance(me.position(), enemy.position()) <= duration + 4:
-                        if any(ability.is_cc() or (ability.is_attack_reset()
-                               and ability.info().enhanced_attack) for ability in enemy.abilities()):
-                            safe = False
+
+        # Check if we can submit
+        if distance(origin, altar) <= cambc.constants.SUBMIT_GEMS_RANGE:
+            is_marcella = (me.champion_name() == cambc.ChampionType.MARCELLA or
+                           me.passive() == cambc.PassiveType.STUN_IMMUNITY)
+            # Only visible enemies close enough to hit/stun us during the channel are actual threats
+            visible_threats = [e for e in cambc.vision.champions(Team.ENEMY) if e.is_visible()]
+            lethal = False
+            stun_threat = False
+            for e in visible_threats:
+                d = distance(origin, e.position())
+                if d <= e.attack_range() + 2:
+                    if e.strength() * min(duration, 5) >= me.health():
+                        lethal = True
+                if not is_marcella and d <= 4:
+                    if any(a.is_cc() or (a.is_attack_reset() and a.info().enhanced_attack)
+                           for a in e.abilities() if a.is_ready()):
+                        stun_threat = True
+
+            safe = not lethal and not stun_threat
             if safe and cambc.round_number() + duration <= cambc.constants.MAX_ROUNDS:
                 me.submit_gems(altar)
                 return
+            close_foes = [e for e in visible_threats if distance(origin, e.position()) <= me.attack_range()]
+            if close_foes and attack_if_in_range(close_foes[0]):
+                return
+
         goals = tiles_around(tile, 0)
-        if not move_towards_closest(goals, avoid):
-            self.bank_altar = None
-            if cambc.fuel_remaining() > 600000:
-                self.retreat()
+        if not move_towards_closest(goals):
+            all_approaches = tiles_around(altar, cambc.constants.SUBMIT_GEMS_RANGE)
+            if not move_towards_closest(all_approaches):
+                self.bank_altar = None
+                if cambc.fuel_remaining() > 600000:
+                    self.retreat()
 
     def place_ward(self):
         me = cambc.me()
@@ -523,37 +613,38 @@ class Bot:
         candidates.set(me.position(), False)
         if candidates.is_empty():
             return
-        altars = game_map.altars().positions()
-        visible = cambc.vision.visible_tiles()
+        altars = self.altars
         bushes = game_map.bushes()
-
-        def score(tile):
-            sight = cambc.Ward.visible_tiles_from(tile)
-            # Unseen jungle, bush entrances and altar approaches are worth watching.
-            altar_distance = min(distance(tile, altar) for altar in altars)
-            return ((sight & ~visible).count() + 3 * (sight & bushes).count()
-                    + max(0, 6 - altar_distance) * 8)
-
-        best, best_score = None, -1
-        for tile in candidates.positions():
-            if cambc.fuel_remaining() < 2100000:
-                break
-            value = score(tile)
-            if value > best_score:
-                best, best_score = tile, value
-        if best is not None:
+        origin = me.position()
+        def ward_score(t):
+            altar_dist = min(distance(t, a) for a in altars)
+            bush_bonus = 10 if bushes.is_set(t) else 0
+            return bush_bonus - altar_dist + distance(t, origin)
+        best = max(candidates.positions(), key=ward_score)
+        try:
             me.place_ward(best)
+        except Exception:
+            pass
 
     def buy_items(self):
-        # Basic attacks and resets scale with Strength. Tavi can also shop in-field.
         me = cambc.me()
-        item = Item.POWER_SHARD_OF_STRENGTH
-        count = me.gold_count() // item.cost()
+        lock_type = cambc.ConsumableType.ALTAR_LOCK
+        lock = me.consumables()[lock_type]
+        has_lock = lock.count() > 0
+        if not has_lock and me.can_buy(lock_type):
+            me.buy(lock_type)
+            has_lock = True
+
+        champ = me.champion_name()
+        item = Item.POWER_SHARD_OF_FOCUS if champ in (cambc.ChampionType.TAVI, cambc.ChampionType.CASSI) else Item.POWER_SHARD_OF_STRENGTH
+        reserve = 0 if has_lock else 10
+        available = max(0, me.gold_count() - reserve)
+        count = available // item.cost()
         if count and me.can_buy(item, count):
             me.buy(item, count)
-        lock = cambc.ConsumableType.ALTAR_LOCK
-        if me.can_buy(lock):
-            me.buy(lock)
+
+        if not has_lock and me.can_buy(lock_type):
+            me.buy(lock_type)
 
     def play_turn(self):
         me = cambc.me()
@@ -582,25 +673,35 @@ class Bot:
         if self.combat_turn():
             return
 
-        threshold = 0.6 if me.gem_count() >= 40 and self.danger(me.position(), 3) else 0.35
+        enemies = [e for e in cambc.vision.champions(Team.ENEMY) if e.is_visible()]
+        close_enemies = [e for e in enemies if distance(me.position(), e.position()) <= 8]
+        near_altar = min(distance(me.position(), a) for a in self.altars) <= 2
+        immediate_threat = any(distance(me.position(), e.position()) <= e.attack_range() + 1 for e in close_enemies)
+        threatened_carrier = me.gem_count() > 0 and not near_altar and (me.health() < me.max_health() * 0.45 or immediate_threat)
+
+        if threatened_carrier:
+            self.retreat()
+            return
+
+        threshold = 0.6 if (me.gem_count() >= 40 and close_enemies) else 0.35
         if not at_spawn and me.health() < me.max_health() * threshold:
             self.retreat()
             return
 
-        # Carriers route away from fights instead of stopping to attack every passerby.
-        if me.gem_count() > 0:
+        # Banking logic:
+        team_gems = cambc.global_submitted_gems(Team.ALLY)
+        winning_bag = me.gem_count() > 0 and (team_gems + me.gem_count() >= 1000)
+        altar_dist = min(distance(me.position(), a) for a in self.altars)
+        bank_threshold = 20 if (close_enemies or altar_dist <= 8) else 40
+        should_bank = (me.gem_count() >= bank_threshold or
+                       (me.gem_count() > 0 and (near_altar or winning_bag or me.health() < me.max_health() * 0.6)))
+        if should_bank:
             self.bank()
             return
         self.bank_altar = None
 
-        # Safe cluster farmers may never die or need healing. Convert their saved
-        # capture gold into damage instead of waiting indefinitely for a spawn visit.
-        if not at_spawn and me.gold_count() >= 150:
-            self.retreat()
-            return
-
         # Attack the first enemy champion already in range.
-        for enemy in cambc.vision.champions(Team.ENEMY):
+        for enemy in enemies:
             if attack_if_in_range(enemy):
                 return
 

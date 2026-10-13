@@ -45,8 +45,8 @@ class ExchangeTests(unittest.TestCase):
         us = fighter(50)
         enemy = fighter(70, spells=[('dash', 0, 2, 0, False, False),
                                     ('damage', 0, 4, 200, False, True)])
-        # At gap five: dash+walk to range one, then the other spell next turn.
-        self.assertEqual(exchange(us, [enemy], [5], 0)[1], 270)
+        # At gap four: dash+walk to range one, then the other spell next turn.
+        self.assertEqual(exchange(us, [enemy], [4], 0)[1], 270)
         ready_later = fighter(70, spells=[('damage', 1, 4, 200, False, True)])
         self.assertEqual(exchange(us, [ready_later], [4], 0)[1], 200)
 
