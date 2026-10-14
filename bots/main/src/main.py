@@ -13,6 +13,7 @@ def main():
                 # Loading the larger strategy during draft can exhaust the pick budget.
                 if bot is None:
                     from bot import Bot
+                    from planner.ledger import LEDGER
                     bot = Bot()
                     # Import may span fuel quanta. Start decisions with a fresh turn.
                 else:
@@ -21,7 +22,8 @@ def main():
                     bot.min_fuel = min(bot.min_fuel, cambc.fuel_remaining())
                     bot.suspended += cambc.round_number() != started
                     if started % 100 == 0:
-                        print(f"v4 plans={bot.plan_count} min_fuel={bot.min_fuel} suspensions={bot.suspended}", flush=True)
+                        print(f"v5a id={int(cambc.me())} plans={bot.plan_count} min_fuel={bot.min_fuel} "
+                              f"suspensions={bot.suspended} aborts={LEDGER.aborts} cuts={bot.cuts}", flush=True)
         except Exception as error:
             trace = error.__traceback__
             frames = []
