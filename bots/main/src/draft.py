@@ -12,7 +12,7 @@ def play():
         clustered = sum(len(group) for group in groups if len(group) > 1)
         safe = sum(len(group) for group in groups
                    if all(camp.base_stats().base_strength <= 20 for camp in group))
-        # Candidate B meta roster: Vendetta, Varg, Ryth, Tavi, Marcella
+        # Candidate B meta roster: Vendetta, Tavi, Marcella, Varg, Ryth
         roster = (D.VENDETTA, D.TAVI, D.MARCELLA, D.VARG, D.RYTH)
         # Versioned shared draft scratchpad: roster, clustered percentage, safe %.
         cambc.draft_memory.submit(bytes((3, *roster,

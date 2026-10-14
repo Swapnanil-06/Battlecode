@@ -21,7 +21,7 @@ def main():
                     bot.min_fuel = min(bot.min_fuel, cambc.fuel_remaining())
                     bot.suspended += cambc.round_number() != started
                     if started % 100 == 0:
-                        print(f"v3 plans={bot.plan_count} min_fuel={bot.min_fuel} suspensions={bot.suspended}", flush=True)
+                        print(f"v4 plans={bot.plan_count} min_fuel={bot.min_fuel} suspensions={bot.suspended}", flush=True)
         except Exception as error:
             trace = error.__traceback__
             frames = []
