@@ -5,9 +5,9 @@ from randomness import below
 
 import cambc
 from cambc import game_map
-from planner.ledger import (LEDGER, COST_ATTACK, COST_BANK, COST_CANDIDATE, COST_FIELD,
-                            COST_MOVE, COST_RETREAT, COST_SCAN, COST_SETUP, COST_WARD,
-                            SOFT_FLOOR)
+from planner.ledger import (LEDGER, COST_ATTACK, COST_BANK, COST_CANDIDATE, COST_DASH,
+                            COST_FIELD, COST_MOVE, COST_RETREAT, COST_SCAN, COST_SETUP,
+                            COST_WALK, COST_WARD, SOFT_FLOOR)
 
 Team, Item = cambc.Team, cambc.ItemType
 _first = itemgetter(0)
@@ -401,8 +401,9 @@ def attack_if_in_range(target):
         if isinstance(target, cambc.AltarLock):
             if not target.is_enemy() or target.hits_remaining() <= 0:
                 return False
-            t_pos = safe_position(target)
-            if t_pos is None or distance(my_pos, t_pos) > me.attack_range():
+            # AltarLock has no is_visible(): safe_position() would always read None.
+            t_pos = target.position()
+            if distance(my_pos, t_pos) > me.attack_range():
                 return False
             me.attack(target)
             acted()
@@ -464,7 +465,6 @@ class Bot:
         self._camp_threats_stale = False
         self.camp_tiles = cambc.Bitboard()
         self.max_camp_range = 1000  # until warm() reads every camp's range
-        self.ward_sites = {}
         _ = cambc.constants.MAX_ROUNDS
         static_blocked()
         champ = cambc.me().champion_name()
@@ -496,6 +496,7 @@ class Bot:
             field = cambc.DistanceField()
             field.compute(cambc.Bitboard(), game_map.altars(), cambc.Bitboard())
             self.altar_field = field
+            self.spawn_field()
         for group in self.groups:
             if id(group) not in self.rings:
                 if cambc.fuel_remaining() < floor:
@@ -544,6 +545,15 @@ class Bot:
                 ring |= tiles_around(tile, 1)
             self.rings[id(group)] = ring
         return ring
+
+    def spawn_field(self):
+        """Walking distance to our spawn region around static terrain; built once."""
+        field = _static.get('spawn_field')
+        if field is None:
+            blocked = static_blocked()
+            field = _static['spawn_field'] = cambc.DistanceField()
+            field.compute(blocked, game_map.spawn_region(Team.ALLY) & ~blocked, cambc.Bitboard())
+        return field
 
     def altar_gap(self, tile):
         """Chebyshev distance from tile to the nearest altar."""
@@ -630,11 +640,16 @@ class Bot:
             live = {handle: until for handle, until in respawns.items() if until > now}
             if len(live) != len(respawns):
                 self.respawns = respawns = live
-        # The order depends only on our tile and which respawn timers are running.
-        sort_key = (px, py, tuple(sorted(respawns)))
-        if self.route_order is not None and self.route_order[0] == sort_key:
-            nearby = self.route_order[1]
+        # The order depends on our tile and which respawn timers are running. Rebuilding
+        # it costs ~5k per group (~200k on 40-group maps), so a one-tile step keeps the
+        # last order: each distance key is off by at most one until the next rebuild.
+        timers = tuple(sorted(respawns))
+        order = self.route_order
+        if (order is not None and order[0][2] == timers
+                and max(abs(px - order[0][0]), abs(py - order[0][1])) <= 1):
+            nearby = order[1]
         else:
+            sort_key = (px, py, timers)
             keyed = [(tier, max(abs(px - x), abs(py - y)), index, group)
                      for handle, tier, x, y, index, group in self.gstatic
                      if respawns.get(handle, 0) <= now]
@@ -681,6 +696,10 @@ class Bot:
                         continue
                     self.group = group
                     return
+                if (region & ~blocked).is_empty():
+                    # Every spawn tile holds an enemy unit or ward: the reward cannot be
+                    # captured now, and chasing it would leave us parked here every turn.
+                    continue
 
             # Exact pruning. value = worth / time * factors, where every factor except the
             # current group's 1.2 is <= 1, travel >= the Chebyshev gap to an approach tile
@@ -875,7 +894,12 @@ class Bot:
             else:
                 target = max(in_attack_range, key=lambda e: (safe_is_submitting_gems(e), safe_gem_count(e) * 4, -safe_health(e)))
             near_altar = min(distance(me.position(), a) for a in self.altars) <= 1
-            if safe_gem_count(target) > 0 or safe_is_submitting_gems(target) or near_altar or me.gem_count() == 0:
+            # Below 40% health, trading blows only feeds the enemy a kill: strike when it
+            # kills this turn (basic, plus a ready reset), else fall through to the retreat.
+            if safe_health(me) < safe_max_health(me) * 0.4 and safe_health(target) > me.strength() * (
+                    2 if any(kind == 'reset' and ready(ability, me) for ability, kind, _, _ in my_abilities()) else 1):
+                pass
+            elif safe_gem_count(target) > 0 or safe_is_submitting_gems(target) or near_altar or me.gem_count() == 0:
                 if attack_if_in_range(target):
                     return True
 
@@ -1007,9 +1031,11 @@ class Bot:
         terms = [sighting_terms, camp_threats]  # narrowed again before the walk
 
         def exposure(tile):
+            return exposure_xy(tile.x, tile.y)
+
+        def exposure_xy(tx, ty):
             # channel_damage(tile, 2), inlined. Pure within this call (actions change
             # neither the sightings nor the camp snapshot), so memoize per tile.
-            tx, ty = tile.x, tile.y
             key = (tx, ty)
             value = seen.get(key)
             if value is None:
@@ -1033,15 +1059,11 @@ class Bot:
             except Exception:
                 pass
         enemy_xy = [(p.x, p.y, r) for p, r, e in enemy_info]
-        enemy_gap = None
-        if enemy_info:
-            roots = cambc.Bitboard()
-            for p, r, e in enemy_info:
-                roots.set(p)
-            # Walls-free 8-way search: Chebyshev distance to the nearest close enemy,
-            # exact for every tile scored below (all within `area` of origin).
-            enemy_gap = cambc.DistanceField()
-            enemy_gap.compute(cambc.Bitboard(), roots, cambc.Bitboard(), 9 + area)
+
+        def enemy_gap(tx, ty):
+            # Chebyshev distance to the nearest close enemy: what a walls-free search
+            # gives, in plain integers rather than a field build and per-tile SDK reads.
+            return min([max(abs(tx - x), abs(ty - y)) for x, y, _ in enemy_xy])
 
         # Never start an interruptible recall if enemies are nearby or under camp attack!
         if not enemy_info and exposure(origin) == 0:
@@ -1084,7 +1106,7 @@ class Bot:
 
         # 2. Dash to escape: choose landing that maximizes distance to closest enemy
         for ability, kind, reach, info in my_abilities():
-            if kind == 'dash' and ready(ability, me):
+            if kind == 'dash' and ready(ability, me) and LEDGER.afford(COST_DASH):
                 try:
                     blocked = blocked_tiles()
                     transit = blocked & ~game_map.holes()
@@ -1092,13 +1114,21 @@ class Bot:
                     landings &= ~game_map.spawn_region(Team.ENEMY)
                     choices = [origin, *landings.positions()]
                     if enemy_info:
-                        cur_min = enemy_gap.get(origin)
+                        cur_min = enemy_gap(origin.x, origin.y)
                         # max by (enemy gap, -camp pressure), first wins: only the tiles
                         # with the largest gap can win, so price pressure for those alone.
-                        gaps = [enemy_gap.get(tile) for tile in choices]
+                        gaps = [enemy_gap(tile.x, tile.y) for tile in choices]
                         widest = max(gaps)
-                        best_landing = max((tile for tile, gap in zip(choices, gaps) if gap == widest),
-                                           key=lambda tile: -self.camp_pressure(tile))
+                        best_landing = next(tile for tile, gap in zip(choices, gaps) if gap == widest)
+                        if camp_threats:
+                            # camp_pressure(tile), exactly: camp_threats holds every camp
+                            # that can reach a tile within `area`, which covers each landing.
+                            def pressure(tile):
+                                tx, ty = tile.x, tile.y
+                                return sum([strength for x, y, strength, radius in camp_threats
+                                            if max(abs(tx - x), abs(ty - y)) <= radius])
+                            best_landing = max((tile for tile, gap in zip(choices, gaps) if gap == widest),
+                                               key=lambda tile: -pressure(tile))
                         if widest > cur_min:  # best_landing's gap is `widest`
                             used = ability.use(best_landing)
                             acted()
@@ -1127,40 +1157,42 @@ class Bot:
                     acted()
 
         # 3. Walk to flee: step away from enemies, avoid standing in enemy attack ranges
-        if me.can_move():
+        if me.can_move() and LEDGER.afford(COST_WALK):
             try:
                 blocked = blocked_tiles()
-                reachable = [origin, *blocked.reachable_tiles(origin, me.base_stats().base_move_speed).positions()]
+                step_len = me.base_stats().base_move_speed
+                reachable = [origin, *blocked.reachable_tiles(origin, step_len).positions()]
                 if enemy_info:
-                    carrying = me.gem_count() > 0
-                    goals = ally_spawn_xy()
+                    # Carriers head for the nearest altar (altar_gap, as integers), others home.
+                    goals = self.altar_xy if me.gem_count() > 0 else ally_spawn_xy()
                     # Walk tiles are one step from here: drop terms that cannot reach them.
-                    cx, cy, step_len = origin.x, origin.y, me.base_stats().base_move_speed
+                    cx, cy = origin.x, origin.y
                     terms[0] = [t for t in terms[0] if max(abs(cx - t[0]), abs(cy - t[1])) - step_len <= t[2] + 1]
                     terms[1] = [t for t in terms[1] if max(abs(cx - t[0]), abs(cy - t[1])) - step_len <= t[3]]
-                    def flee_base(tile):
+                    # Base score: range penalty, distance from the nearest enemy, distance to goal.
+                    ranked = []
+                    for index, tile in enumerate(reachable):
                         tx, ty = tile.x, tile.y
-                        in_range = in_walk_range = False
+                        penalty, min_dist = 0, 999
                         for x, y, r in enemy_xy:
                             d = max(abs(tx - x), abs(ty - y))
-                            if d <= r + 1:
-                                in_walk_range = True
-                                if d <= r:
-                                    in_range = True
-                        min_dist = enemy_gap.get(tile)
-                        danger_pen = (1000 if in_range else (300 if in_walk_range else 0)) - min_dist * 25
-                        goal_dist = (self.altar_gap(tile) if carrying
-                                     else min(max(abs(tx - x), abs(ty - y)) for x, y in goals))
-                        return danger_pen + goal_dist
+                            if d < min_dist:
+                                min_dist = d
+                            if d <= r:
+                                penalty = 1000
+                            elif d == r + 1 and penalty == 0:
+                                penalty = 300
+                        ranked.append((penalty - min_dist * 25
+                                       + min([max(abs(tx - x), abs(ty - y)) for x, y in goals]), index, tx, ty))
                     # min(reachable, key=base + exposure) with exposure >= 0: visit tiles by
                     # (base, order) and stop once no remaining tile can win or tie earlier.
-                    ranked = sorted((flee_base(tile), index) for index, tile in enumerate(reachable))
+                    ranked.sort()
                     best_score, best_index = None, None
-                    for base, index in ranked:
+                    for base, index, tx, ty in ranked:
                         if best_score is not None and (base > best_score
                                                        or (base == best_score and index > best_index)):
                             break
-                        score = base + exposure(reachable[index])
+                        score = base + exposure_xy(tx, ty)
                         if (best_score is None or score < best_score
                                 or (score == best_score and index < best_index)):
                             best_score, best_index = score, index
@@ -1168,8 +1200,9 @@ class Bot:
                     if step != origin and not blocked.is_set(step):
                         safe_move(step)
                 else:
-                    field = cambc.DistanceField()
-                    field.compute(blocked, game_map.spawn_region(Team.ALLY) & ~blocked, cambc.Bitboard())
+                    # Terrain-only distances home: the last tiebreak need not see units, and
+                    # a full-map search per call cost up to ~300k on large maps.
+                    field = self.spawn_field()
                     wards = me.ward_positions()
                     step = min(reachable, key=lambda tile: (exposure(tile),
                                0 if wards and distance(tile, wards[0]) <= 6 else 1, field.get(tile)))
@@ -1179,9 +1212,10 @@ class Bot:
                 pass
 
         # 4. Defend with basic attack / reset if enemy is in range
-        for enemy in safe_visible_enemies():
-            if attack_if_in_range(enemy):
-                break
+        if me.can_attack():
+            for enemy in safe_visible_enemies():
+                if attack_if_in_range(enemy):
+                    break
 
     def bank(self):
         me = cambc.me()
@@ -1223,7 +1257,7 @@ class Bot:
                 continue
             approaches = ring & free
             if approaches.is_empty():
-                if not near:
+                if not near or not LEDGER.afford(COST_FIELD):
                     continue
                 try:
                     field, reached = route_field(blocked, origin, None)
@@ -1338,17 +1372,48 @@ class Bot:
             candidates.set(my_pos, False)
             if candidates.is_empty():
                 return
-            bushes = game_map.bushes()
-            mx, my = my_pos.x, my_pos.y
-            site = self.ward_sites  # (x, y) -> bush bonus - altar distance; static per tile
-            def ward_score(t):
-                tx, ty = t.x, t.y
-                fixed = site.get((tx, ty))
-                if fixed is None:
-                    gap = self.altar_gap(t)
-                    fixed = site[(tx, ty)] = (10 if bushes.is_set(t) else 0) - gap
-                return fixed + max(abs(tx - mx), abs(ty - my))
-            best = max(candidates.positions(), key=ward_score)
+            # The first tile in board order maximizing 10 * bush - altar gap + distance from
+            # us, found with bitboards. Candidates lie within `reach` of us, so their gaps
+            # span <= 2 * reach and distances <= reach - 1: below 10 for reach <= 3, so any
+            # bush beats every non-bush.
+            bush = candidates & game_map.bushes()
+            pool = candidates if bush.is_empty() else bush
+            reach = ceil(cambc.constants.WARD_PLACEMENT_RADIUS)
+            gap = self.altar_gap(my_pos)
+            # Altars farther than this are no candidate's nearest; they cannot set a gap.
+            mx, my, limit = my_pos.x, my_pos.y, gap + 2 * reach
+            near_altars = [altar for altar, (x, y) in zip(self.altars, self.altar_xy)
+                           if max(abs(x - mx), abs(y - my)) <= limit]
+            bands = {}
+
+            def band(k):
+                """Tiles with altar gap <= k."""
+                tiles = bands.get(k)
+                if tiles is None:
+                    tiles = bands[k] = cambc.Bitboard()
+                    if k >= 0:
+                        for altar in near_altars:
+                            tiles.draw_chebyshev(altar, k)
+                return tiles
+
+            rings, inner = [], tiles_around(my_pos, 0)
+            for c in range(1, reach):
+                disk = tiles_around(my_pos, c)
+                rings.append((c, pool & disk & ~inner))
+                inner = disk
+            rings.append((reach, pool & ~inner))  # every candidate lies within reach
+            # Score levels from the top: level s holds ring-c tiles with gap c - s. Gap <= c - s
+            # suffices, since a smaller gap would have scored on an earlier level.
+            best = None
+            for s in range(2 * reach - gap, -gap - reach, -1):
+                level = cambc.Bitboard()
+                for c, ring in rings:
+                    level |= ring & band(c - s)
+                if not level.is_empty():
+                    best = level.positions()[0]
+                    break
+            if best is None:
+                return False
             placed = me.place_ward(best)
             acted()
             return placed

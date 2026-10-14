@@ -11,7 +11,7 @@ import cambc
 RESERVE_ACTION = 250_000
 # Optional depth (longer route scans, ward siting) stops here so ordinary turns end with
 # room to spare; only mandatory steps may dig down to RESERVE_ACTION.
-SOFT_FLOOR = 750_000
+SOFT_FLOOR = 500_000
 
 # Worst observed costs (fuel) of guarded steps, measured in local gate matches with
 # headroom. They are area-scaled; recheck if maps grow or the SDK version changes.
@@ -22,7 +22,9 @@ COST_CANDIDATE = 150_000  # scoring one more route candidate
 COST_SETUP = 400_000     # farm_camps route setup: allies, bounded field, candidate sort
 COST_FIELD = 300_000     # one full-map DistanceField (80x80 maps)
 COST_BANK = 350_000      # bank: altar field and scoring, before its move
-COST_RETREAT = 450_000   # retreat: dash and walk scoring
+COST_RETREAT = 350_000   # retreat setup: sightings, camp threats, recall or casts
+COST_DASH = 300_000      # retreat dash: landing scan and camp-pressure ties
+COST_WALK = 500_000      # retreat walk: step scoring and the defending attack
 COST_WARD = 650_000      # place_ward: candidate scoring is optional work
 
 

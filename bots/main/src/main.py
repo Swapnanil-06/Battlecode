@@ -2,6 +2,9 @@
 import cambc
 import draft
 
+# Fuel a normal Python turn starts with (2.5M less interpreter overhead).
+FIRST_TURN_PLAY = 2_400_000
+
 
 def main():
     bot = None
@@ -11,18 +14,23 @@ def main():
                 draft.play()
             else:
                 # Loading the larger strategy during draft can exhaust the pick budget.
-                if bot is None:
+                # Draft and play run in separate processes, so draft-turn precompute
+                # cannot reach here (beyond draft memory); the 2x first play turn is
+                # where static caches are built.
+                first = bot is None
+                if first:
                     from bot import Bot
                     from planner.ledger import LEDGER
                     bot = Bot()
-                    # Import may span fuel quanta. Start decisions with a fresh turn.
-                else:
+                    bot.warm(FIRST_TURN_PLAY)
+                # The first turn also plays when a normal turn's worth of fuel remains.
+                if not first or cambc.fuel_remaining() >= FIRST_TURN_PLAY:
                     started = cambc.round_number()
                     bot.play_turn()
                     bot.min_fuel = min(bot.min_fuel, cambc.fuel_remaining())
                     bot.suspended += cambc.round_number() != started
                     if started % 100 == 0:
-                        print(f"v5a id={int(cambc.me())} plans={bot.plan_count} min_fuel={bot.min_fuel} "
+                        print(f"v5b id={int(cambc.me())} plans={bot.plan_count} min_fuel={bot.min_fuel} "
                               f"suspensions={bot.suspended} aborts={LEDGER.aborts} cuts={bot.cuts}", flush=True)
         except Exception as error:
             trace = error.__traceback__
