@@ -38,3 +38,26 @@ The starter-style bot catches turn exceptions and logs `bot error:`; these need
 inspection in replay stdout and may not increment the engine's fault counter.
 No matches are submitted or uploaded. Refresh the official pool with
 `cambc maps pull`; use `cambc view <replay>` on a machine with a display to inspect it.
+
+## Gem pace and replay forensics
+
+`replay_dump.mjs` replays any `.repl26a` (bundle or inner record, including ladder
+replays) through the visualiser's own engine WASM, which `cambc view`/`cambc init` cache
+under `~/.cache/cambc/assets/`. It prints JSON: drafts, outcome, per-round tributed and
+carried gems, deaths, carrier deaths and every tribute. Options: `--every N` (sample
+rate), `--champs` (positions, health, gems), `--camps` (layout at round 1), `--locks`
+(altar locks), `--profile` (per-champion share of turns attacking, moving, idle,
+channelling, tributing or dead). The decoding offsets come from the visualiser's JS for
+engine v0.0.1 (cambc 2.1.6); recheck them when `cambc.toml` changes.
+
+```sh
+node runner/replay_dump.mjs replays/gate/sparring_meta_expanse_A.repl26a --every 50
+# Tributed gems at rounds 250/500 and the round each side reaches 1,000, per match:
+python runner/gem_pace.py manifests/gate_sparring_meta.manifest --bot main
+# A targeted panel (fresh replays, built bots, gem-pace table):
+python runner/make_panel.py main sparring-meta --maps expanse elkring -o replays/panels/x.manifest --run
+```
+
+`run_final_gates.py` now also runs `sparring-meta` (the ladder-meta fast farmer: v5b's
+code with the Cassi & Issac / Vendetta / Varg / Ryth / Tavi draft) and prints the gem
+pace of every suite.

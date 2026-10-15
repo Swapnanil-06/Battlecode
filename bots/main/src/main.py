@@ -30,7 +30,7 @@ def main():
                     bot.min_fuel = min(bot.min_fuel, cambc.fuel_remaining())
                     bot.suspended += cambc.round_number() != started
                     if started % 100 == 0:
-                        print(f"v5b id={int(cambc.me())} plans={bot.plan_count} min_fuel={bot.min_fuel} "
+                        print(f"v5c id={int(cambc.me())} plans={bot.plan_count} min_fuel={bot.min_fuel} "
                               f"suspensions={bot.suspended} aborts={LEDGER.aborts} cuts={bot.cuts}", flush=True)
         except Exception as error:
             trace = error.__traceback__

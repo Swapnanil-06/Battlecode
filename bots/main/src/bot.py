@@ -14,6 +14,8 @@ _first = itemgetter(0)
 WARM_FLOOR = 1_500_000  # warming outside a decision leaves at least this much
 # Route searches start bounded to this many steps and widen only when a goal is past it.
 NEAR_FIELD = 16
+# Turns to break an enemy altar lock (three basic attacks; resets can shorten it).
+LOCK_BREAK_TURNS = 3
 
 # Board queries are memoized until our next action. Nothing else moves during our
 # turn, so only our own actions (move, attack, cast, ward, lock) can change them.
@@ -457,6 +459,7 @@ class Bot:
         self.altars = game_map.altars().positions()
         self.altar_xy = tuple((altar.x, altar.y) for altar in self.altars)
         self.bank_altar = None
+        self.locked_altars = {}  # (x, y) -> enemy lock seen there when last visible
         self.turn_origin = None
         self.plan_count = 0
         self.min_fuel = 2500000
@@ -1231,6 +1234,13 @@ class Bot:
         altars = sorted(zip(self.altars, self.submit_rings()),
                         key=lambda entry: max(abs(ox - entry[0].x), abs(oy - entry[0].y)))
         enemy_locks = cambc.vision.altar_lock_tiles(Team.ENEMY)
+        # Locks are only visible nearby: remember each altar's last seen state, or a
+        # carrier walks between two locked altars forever, seeing one lock at a time.
+        visible = cambc.vision.visible_tiles()
+        locked = self.locked_altars
+        for altar in self.altars:
+            if visible.is_set(altar):
+                locked[(altar.x, altar.y)] = enemy_locks.is_set(altar)
 
         blocked = blocked_tiles()
         try:
@@ -1244,12 +1254,13 @@ class Bot:
         options = []
         best_score = None
         for altar, ring in altars:
-            if enemy_locks.is_set(altar):
-                continue
             if options and not LEDGER.optional(COST_SCAN + COST_CANDIDATE):
                 self.cuts += 1  # Altars are nearest first; keep the tail's fuel instead.
                 break
             inertia = -4 if altar == self.bank_altar else 0
+            # A lock falls to three basic attacks: price it as turns spent hitting it.
+            if locked.get((altar.x, altar.y)):
+                inertia += LOCK_BREAK_TURNS
             # Exact pruning: travel >= Chebyshev gap minus submit range and risk >= 0;
             # min() keeps the first of equal scores, so a bound >= best cannot win.
             gap = max(abs(ox - altar.x), abs(oy - altar.y))
@@ -1276,23 +1287,22 @@ class Bot:
             if best_score is None or score < best_score:
                 best_score = score
         if not options:
-            lock_tiles = cambc.vision.altar_lock_tiles(Team.ENEMY)
-            if not lock_tiles.is_empty():
-                target_altar = min(lock_tiles.positions(), key=lambda a: distance(origin, a))
-                if cambc.vision.has_altar_lock(target_altar):
-                    try:
-                        lock = cambc.vision.altar_lock_at(target_altar)
-                        if me.can_attack() and distance(origin, target_altar) <= me.attack_range():
-                            attack_if_in_range(lock)
-                            return
-                    except Exception:
-                        pass
-                move_towards_closest(tiles_around(target_altar, 1))
-                return
             self.retreat()
             return
         _, tile, altar = min(options, key=lambda option: option[0])
         self.bank_altar = altar
+
+        if enemy_locks.is_set(altar):
+            # altar_lock_at() prefers our own lock when both teams locked the altar.
+            for lock in cambc.vision.altar_locks(Team.ENEMY):
+                if lock.position() == altar:
+                    if attack_if_in_range(lock):
+                        return
+                    break
+            if distance(origin, altar) <= me.attack_range():
+                return  # In range but the attack is spent; hit it again next turn.
+            move_towards_closest(tiles_around(tile, 0))
+            return
 
         # Place altar lock if we have one within range 2
         try:

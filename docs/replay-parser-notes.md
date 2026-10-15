@@ -49,6 +49,8 @@ This yields match-level **reliability** statistics (suspensions, faults, fuel fl
 
 ## 5. Future parser: the promising path — Spec
 
+**Update (15 Oct, cambc 2.1.6): implemented** as `runner/replay_dump.mjs` (see runner/README.md). `Game_FromReplayFileBytes`, then `Game_Visualiser_Timeline_ReplayNext` until the outcome is set, reading `Game_Visualiser_ReadState` snapshots with the visualiser's offsets (spectator perspective team=2). It decodes a full match in ~1 s and matches `--statistics` exactly. Ladder replays supplied by the user decode too.
+
 Do **not** hand-reverse the packet stream; drive the official engine instead. The visualizer shipped with `cambc view` caches a WASM engine (pattern `~/.cache/cambc/assets/<sha>/visualiser/assets/v0_0_1-*.wasm`; **398 exports verified** via Node `WebAssembly.Module.exports`): `Game_FromReplayFileBytes`, `Game_FromMapFileBytes`, `Game_API_*` (champions, camps, vision, occupancy, gems, gold, round, draft), `Game_Runner_*` (Init/BeginRound/EndTurn/Advance/Step), `Game_Action_*`, `Game_Sandbox_*`, `Game_Statistics_GetSummary`, plus Bitboard/DistanceField helpers.
 
 **Approach:** Node script → instantiate the wasm → `Game_FromReplayFileBytes(inner bytes)` → step rounds with `Game_Runner_*` → dump per-round per-champion position/health/gems/actions and team scores to JSONL. Calling conventions map from the visualizer's JS glue (`index-*.js`, served by `cambc view`). **Risks:** pointer/allocator conventions; asset-hash and format drift on SDK bumps (pin to the `cambc.toml` version); keep the asset local — do not redistribute it.

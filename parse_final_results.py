@@ -10,7 +10,8 @@ opponents = [
     ('starter-cpp', 'starter_cpp', 'gate_starter_cpp.log'),
     ('sparring-hunter', 'sparring_hunter', 'gate_sparring_hunter.log'),
     ('sparring-altar', 'sparring_altar', 'gate_sparring_altar.log'),
-    ('sparring-denial', 'sparring_denial', 'gate_sparring_denial.log')
+    ('sparring-denial', 'sparring_denial', 'gate_sparring_denial.log'),
+    ('sparring-meta', 'sparring_meta', 'gate_sparring_meta.log'),
 ]
 
 print("=" * 80)
