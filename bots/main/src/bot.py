@@ -16,6 +16,10 @@ WARM_FLOOR = 1_500_000  # warming outside a decision leaves at least this much
 NEAR_FIELD = 16
 # Turns to break an enemy altar lock (three basic attacks; resets can shorten it).
 LOCK_BREAK_TURNS = 3
+# Route pricing: a respawn wait beyond the walk counts WAIT_COST turns per turn idle, and
+# gold (spent on Strength shards at spawn) is worth GOLD_WORTH gem-units per coin.
+WAIT_COST = 1.5
+GOLD_WORTH = 0.3
 
 # Board queries are memoized until our next action. Nothing else moves during our
 # turn, so only our own actions (move, attack, cast, ward, lock) can change them.
@@ -55,6 +59,19 @@ def my_abilities():
             slots.append((ability, kind, int(getattr(info, 'range', 0) or 0), info))
         slots = _static['abilities'] = tuple(slots)
     return slots
+
+
+def home_side(x, y):
+    """True when (x, y) is nearer our spawn than the enemy's (Chebyshev to region centres)."""
+    centres = _static.get('spawn_centres')
+    if centres is None:
+        centres = []
+        for team in (Team.ALLY, Team.ENEMY):
+            tiles = game_map.spawn_region(team).positions()
+            centres.append((sum(t.x for t in tiles) / len(tiles), sum(t.y for t in tiles) / len(tiles)))
+        centres = _static['spawn_centres'] = tuple(centres)
+    (ax, ay), (ex, ey) = centres
+    return max(abs(x - ax), abs(y - ay)) < max(abs(x - ex), abs(y - ey))
 
 
 def ally_spawn_xy():
@@ -630,7 +647,7 @@ class Bot:
             return
         near = True  # field holds exact distances up to NEAR_FIELD only
         free = reached & ~blocked
-        best, best_value = None, -1
+        best, best_value, best_wait = None, -1, 0
         px, py = my_pos.x, my_pos.y
         my_id = int(me)
         current = self.group
@@ -646,16 +663,18 @@ class Bot:
         # The order depends on our tile and which respawn timers are running. Rebuilding
         # it costs ~5k per group (~200k on 40-group maps), so a one-tile step keeps the
         # last order: each distance key is off by at most one until the next rebuild.
-        timers = tuple(sorted(respawns))
+        timers = tuple(sorted(respawns.items()))
         order = self.route_order
         if (order is not None and order[0][2] == timers
                 and max(abs(px - order[0][0]), abs(py - order[0][1])) <= 1):
             nearby = order[1]
         else:
             sort_key = (px, py, timers)
-            keyed = [(tier, max(abs(px - x), abs(py - y)), index, group)
+            # A respawning group on our half is reachable no sooner than its timer: waiting
+            # beside it beats walking between cleared groups. Contested ones stay excluded.
+            keyed = [(tier, max(abs(px - x), abs(py - y), respawns.get(handle, now) - now), index, group)
                      for handle, tier, x, y, index, group in self.gstatic
-                     if respawns.get(handle, 0) <= now]
+                     if respawns.get(handle, 0) <= now or home_side(x, y)]
             keyed.sort()
             nearby = [entry[3] for entry in keyed[:16]]
             self.route_order = (sort_key, nearby)
@@ -667,6 +686,8 @@ class Bot:
         my_health, my_max = safe_health(me), safe_max_health(me)
         safe_risk = my_health - my_max * 0.25
         capture_time = cambc.constants.CAPTURE_TIME
+        # Only an empty-handed champion with no enemy in sight waits for a respawn.
+        can_wait = me.gem_count() == 0 and not safe_visible_enemies()
         # danger(tile, 3) inputs: (x, y, attack_range + age + 2, strength, 2 * focus).
         sightings = [(x, y, attack_range + (now - seen) + 2, strength, focus * 2)
                      for x, y, seen, strength, attack_range, focus in self.enemies.values()]
@@ -686,9 +707,13 @@ class Bot:
             if isinstance(state, game_map.CampGroupRespawning):
                 # Timer starts after capture, and occupancy can postpone the respawn.
                 self.respawns[handle] = now + state.timer
+                wait = state.timer
+            else:
+                wait = 0 if known else max(0, respawns.get(handle, 0) - now)
+            if wait and not can_wait:
                 continue
-            if not known and respawns.get(handle, 0) > now:
-                continue
+            if wait and not home_side(box[0], box[1]):
+                continue  # Waiting on contested ground feeds kills on brawl maps.
             capturing = isinstance(state, game_map.CampGroupRewardAvailable)
             if capturing:
                 if ally_tiles is None:
@@ -708,17 +733,19 @@ class Bot:
             # current group's 1.2 is <= 1, travel >= the Chebyshev gap to an approach tile
             # (one tile from a spawn), and bank travel >= bank_lb. A group whose best case
             # cannot beat best_value cannot change the choice, so skip its costly parts.
-            worth = gems * 1.5 + gold * 0.1
+            worth = gems * 1.5 + gold * GOLD_WORTH
             fixed = capture_time + 1 + bank_lb + ceil(gems / 10)
             scale = (0.001 if gems == 0 else 1) * (1.2 if handle == current_id else 1)
-            travel_lb = max(0, box_distance(px, py, box) - 1)
+            travel_lb = max(0, box_distance(px, py, box) - 1, wait)
             if worth / max(1, travel_lb + fixed) * scale * 1.000001 <= best_value:
                 continue
 
             camps = []
             if not capturing:
                 for camp, spawn, base_health, base_strength, monolith in camp_info:
-                    if safe_is_visible(camp):
+                    if wait:
+                        health = base_health  # the whole group returns at full health
+                    elif safe_is_visible(camp):
                         health = safe_health(camp)
                     elif occupied_camps.is_set(spawn):
                         health = base_health
@@ -773,7 +800,9 @@ class Bot:
 
             ax, ay = approach.x, approach.y
             bank_travel = altar_field.get(approach)  # min Chebyshev distance to an altar
-            time = travel + clear_turns + capture_time + 1 + bank_travel
+            # Idle waiting costs more than walking, so a nearby wolf or gold cluster fills
+            # a long respawn wait and the group is collected on the way back.
+            time = travel + max(0, wait - travel) * WAIT_COST + clear_turns + capture_time + 1 + bank_travel
             time += ceil(gems / 10)
             value = worth / max(1, time)
             if gems == 0:
@@ -799,10 +828,17 @@ class Bot:
                     value *= 0.35
             if handle == current_id:
                 value *= 1.2
+            if wait and danger:
+                continue  # Recent enemy sightings near the group.
             if value > best_value:
-                best, best_value = group, value
+                best, best_value, best_wait = group, value, wait
         self.group = best
         if best is None:
+            return
+        if best_wait:
+            # Wait beside the spawn tiles: a group respawns only when all of them are free.
+            region = self.group_info(best)[4]
+            move_towards_closest(self.approach_ring(best, region) & ~region)
             return
         if best is not current:
             # The first pass already tried `current` with no action since; it would fail again.
