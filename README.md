@@ -14,6 +14,12 @@ A bot developed for the [Cambridge Battlecode '26 Autumn](https://2026a.battleco
 
 ## Bot
 
+The experimental, uploadable map-aware variant lives in [`bots/topteam/src/`](bots/topteam/src/).
+It preserves the current gameplay code and changes the draft on three tested
+map profiles. See [`docs/topteam-implementation.md`](docs/topteam-implementation.md)
+for the measured results and their limits. The established bot remains in
+[`bots/main/src/`](bots/main/src/).
+
 The Python bot lives in [`bots/main/src/`](bots/main/src/):
 
 - `main.py`: persistent draft/gameplay loop, exception logging and turn yielding.
