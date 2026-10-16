@@ -16,15 +16,15 @@ SOFT_FLOOR = 500_000
 # Worst observed costs (fuel) of guarded steps, measured in local gate matches with
 # headroom. They are area-scaled; recheck if maps grow or the SDK version changes.
 COST_MOVE = 250_000      # move_towards_closest: field to goals, dash check, one step
-COST_ATTACK = 120_000    # attack_if_in_range: checks, attack, attack reset
-COST_SCAN = 550_000      # preserve a route, movement and attack after candidate scoring
-COST_CANDIDATE = 350_000  # candidate SDK queries plus a possible distance-field expansion
+COST_ATTACK = 60_000     # attack_if_in_range: checks, attack, attack reset
+COST_SCAN = 400_000      # farm_camps tail after the route scan: attacks and one move
+COST_CANDIDATE = 150_000  # scoring one more route candidate
 COST_SETUP = 400_000     # farm_camps route setup: allies, bounded field, candidate sort
 COST_FIELD = 300_000     # one full-map DistanceField (80x80 maps)
 COST_BANK = 350_000      # bank: altar field and scoring, before its move
 COST_RETREAT = 350_000   # retreat setup: sightings, camp threats, recall or casts
-COST_DASH = 450_000      # retreat dash: landing scan and camp-pressure ties
-COST_WALK = 600_000      # retreat walk: step scoring and the defending attack
+COST_DASH = 300_000      # retreat dash: landing scan and camp-pressure ties
+COST_WALK = 500_000      # retreat walk: step scoring and the defending attack
 COST_WARD = 650_000      # place_ward: candidate scoring is optional work
 
 

@@ -19,9 +19,8 @@ def main():
                 # where static caches are built.
                 first = bot is None
                 if first:
-                    from portfolio import strategy_modules
-                    memory = bytes(cambc.draft_memory)
-                    Bot, LEDGER = strategy_modules(memory[0] if memory else 4)
+                    from bot import Bot
+                    from planner.ledger import LEDGER
                     bot = Bot()
                     bot.warm(FIRST_TURN_PLAY)
                 # The first turn also plays when a normal turn's worth of fuel remains.
@@ -31,7 +30,7 @@ def main():
                     bot.min_fuel = min(bot.min_fuel, cambc.fuel_remaining())
                     bot.suspended += cambc.round_number() != started
                     if started % 100 == 0:
-                        print(f"v16 id={int(cambc.me())} plans={bot.plan_count} min_fuel={bot.min_fuel} "
+                        print(f"v5d id={int(cambc.me())} plans={bot.plan_count} min_fuel={bot.min_fuel} "
                               f"suspensions={bot.suspended} aborts={LEDGER.aborts} cuts={bot.cuts}", flush=True)
         except Exception as error:
             trace = error.__traceback__
