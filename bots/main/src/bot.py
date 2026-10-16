@@ -872,7 +872,10 @@ class Bot:
             nearby = order[1]
         else:
             sort_key = (px, py, timers)
-            keyed = [(tier, max(abs(px - x), abs(py - y), respawns.get(handle, now) - now), index, group)
+            keyed = [(tier,
+                      max(abs(px - x), abs(py - y), respawns.get(handle, now) - now)
+                      + (0 if home_side(x, y) else 28),
+                      index, group)
                      for handle, tier, x, y, index, group in self.gstatic
                      if respawns.get(handle, 0) <= now or home_side(x, y)]
             keyed.sort()
@@ -902,9 +905,12 @@ class Bot:
                 if best is None:
                     return
                 break
-            handle, _, _, _, region, gems, gold, camp_info, box, bank_lb = self.group_info(group)
+            handle, _, gx, gy, region, gems, gold, camp_info, box, bank_lb = self.group_info(group)
             if sfield.get(camp_info[0][1]) >= 65535:
                 continue
+            on_home = home_side(gx, gy)
+            if self.is_duo and not on_home and now < 250:
+                continue  # Never send linked-death duo bodies onto the enemy half early!
             known = not (region & visible).is_empty()
             state = group.state() if known else None
             if isinstance(state, game_map.CampGroupRespawning):
@@ -914,7 +920,7 @@ class Bot:
                 wait = 0 if known else max(0, respawns.get(handle, 0) - now)
             if wait and not can_wait:
                 continue
-            if wait and not home_side(box[0], box[1]):
+            if wait and not on_home:
                 continue
             capturing = isinstance(state, game_map.CampGroupRewardAvailable)
             if capturing:
@@ -942,8 +948,10 @@ class Bot:
             worth = gems * 1.5 + gold * GOLD_WORTH
             fixed = capture_time + 1 + bank_lb + ceil(gems / 10)
             raid = self.raid(group)
-            scale = (0.001 if gems == 0 and not invest else 1) * (1.2 if handle == current_id else 1)
-            claim_scale = policy.CLAIM_FACTOR if self.job_ids[id(group)] in reserved and not raid else 1
+            tfac = 1.0 if on_home else (0.35 if now < 150 else 0.55)
+            scale = (0.001 if gems == 0 and not invest else 1) * (1.2 if handle == current_id else 1) * tfac
+            tough_group = sum(c[3] for c in camp_info) >= 60 and not capturing
+            claim_scale = (0.75 if tough_group else policy.CLAIM_FACTOR) if self.job_ids[id(group)] in reserved and not raid else 1
             scale *= claim_scale
             travel_lb = max(0, box_distance(px, py, box) - 1, wait)
             if worth / max(1, travel_lb + fixed) * scale * 1.000001 <= best_value:
@@ -1028,7 +1036,7 @@ class Bot:
             time = travel + max(0, wait - travel) * WAIT_COST + clear_turns + capture_time + 1 + bank_travel
             time += ceil(gems / 10)
             value = worth / max(1, time)
-            value *= claim_scale
+            value *= claim_scale * tfac
             if gems == 0 and not invest:
                 value *= 0.001
             danger = 0
@@ -1046,10 +1054,16 @@ class Bot:
                         apos = safe_position(ally)
                         if apos:
                             idle_allies.append((apos.x, apos.y, int(ally)))
+            closer = 0
             for x, y, ident in (() if raid else idle_allies):
                 ally_dist = max(abs(x - ax), abs(y - ay))
                 if ally_dist < travel or (ally_dist == travel and ident < my_id):
-                    value *= 0.35
+                    closer += 1
+            if closer:
+                if tough_group and closer == 1:
+                    value *= 0.80
+                else:
+                    value *= 0.35 ** closer
             if handle == current_id:
                 value *= 1.2
             if wait and danger:
