@@ -1,5 +1,24 @@
 # Local match runner
 
+## Offline policy learning
+
+`python runner/train_league.py --output replays/new-search --trials 20 --validate`
+
+The tuple-model optimiser evaluates complete frozen policies in the official
+engine against `main` and `sparring-meta`, with both sides on each training map.
+It writes source snapshots, manifests, replays, logs, scores and a selected
+`policy.py`. Failed policies cannot be selected. Existing results are reused only
+when the policy, bot source, SDK, map files and opponent source match. Use a fresh
+output directory after source changes. The eight newer maps stay outside the
+automated search; they have been used for manual development and are not an
+untouched release holdout. See `docs/league-strategy.md` for the final evidence.
+
+The uploaded bot is a fixed policy. Training occurs locally; ladder games do not
+update it automatically. Repeating the same deterministic matchup is not another
+independent sample.
+
+## Sequential match runner
+
 Set up the workspace first with the commands in the [root README](../README.md).
 The runner needs only Python's standard library and `cambc` on PATH.
 
