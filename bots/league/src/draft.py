@@ -1,6 +1,7 @@
 import cambc
 from cambc import game_map
 import policy
+from portfolio import select_mode
 
 _order = None
 
@@ -24,6 +25,8 @@ def select_roster(all_groups):
     )
     if wolf3_only or harmless_gem >= 6:
         return tuple(getattr(policy, 'ROSTER_PVE', (3, 4, 9, 10, 8)))
+    if cambc.draft.team_size() <= 3:
+        return tuple(getattr(policy, 'ROSTER_SMALL', (3, 4, 9, 10, 8)))
     return tuple(policy.ROSTER)
 
 
@@ -38,13 +41,20 @@ def play():
         clustered = sum(len(group) for group in groups if len(group) > 1)
         safe = sum(len(group) for group in groups
                    if all(camp.base_stats().base_strength <= 20 for camp in group))
-        _order = select_roster(all_groups)
-        cambc.draft_memory.submit(bytes((3, *_order,
+        mode = select_mode(game_map.width(), game_map.height(), all_groups)
+        if mode == 4:
+            from variants.incumbent.draft import select_roster as roster
+        elif mode == 5:
+            from variants.packs.draft import select_roster as roster
+        else:
+            roster = select_roster
+        _order = roster(all_groups)
+        cambc.draft_memory.submit(bytes((mode, *_order,
                                          clustered * 100 // max(1, total),
                                          safe * 100 // max(1, total))))
         cambc.draft.pick(_order[0])
         return
     if _order is None:
         memory = bytes(cambc.draft_memory)
-        _order = tuple(memory[1:6]) if memory and memory[0] == 3 else tuple(policy.ROSTER)
+        _order = tuple(memory[1:6]) if memory and memory[0] in (3, 4, 5) else tuple(policy.ROSTER)
     cambc.draft.pick(next(pick for pick in _order if pick not in chosen))

@@ -4,6 +4,7 @@ from operator import itemgetter
 from randomness import below
 import policy
 from coordination import publish, claimed_jobs, job_claim_counts
+from camp_tactics import pack_damage
 
 import cambc
 from cambc import game_map
@@ -485,6 +486,7 @@ class Bot:
         self.enemies = {}
         self.respawns = {}
         self.group = None
+        self.job_round = -100
         self.groups = game_map.camp_groups()
         self.job_ids = {id(group): index + 1 for index, group in enumerate(self.groups)}
         handles = sorted(int(champ) for champ in cambc.champions(Team.ALLY))
@@ -566,11 +568,15 @@ class Bot:
     def investment_map(self):
         if self.resource_mode is None:
             gem_groups = [self.group_info(g) for g in self.groups if g.gem_value()]
-            total = sum(info[5] for info in gem_groups)
-            difficult = sum(info[5] for info in gem_groups
+            self.monolith_only = bool(gem_groups and all(any(c[4] for c in info[7]) for info in gem_groups))
+            # Optional monolith rewards cannot determine the build for ordinary
+            # camps: we deliberately skip those bosses when other gems exist.
+            farmable = gem_groups if self.monolith_only else [
+                info for info in gem_groups if not any(c[4] for c in info[7])]
+            total = sum(info[5] for info in farmable)
+            difficult = sum(info[5] for info in farmable
                             if sum(c[2] for c in info[7]) >= 8000)
             self.resource_mode = bool(total and difficult >= total * 0.5)
-            self.monolith_only = bool(total and all(any(c[4] for c in info[7]) for info in gem_groups))
         return self.resource_mode
 
     def raid(self, group):
@@ -608,6 +614,12 @@ class Bot:
                 danger |= tiles_around(tile, camp.base_stats().base_attack_range)
         if not camps:
             return False
+        if not any(safe_is_visible(camp) for camp, _, _ in camps):
+            # After the final kill, a bush can hide the now-empty spawn tile.
+            # A geometric firing ring is not evidence that a monster remains.
+            # Walk in to reveal/capture rather than sieging an unseen phantom.
+            move_towards_closest(info[4])
+            return True
         goals = reach_tiles & ~danger & ~blocked_tiles()
         if any(entry[4] for entry in info[7]):
             quiet = self.siege_goal_cache.get(id(group))
@@ -799,9 +811,55 @@ class Bot:
         return attack_if_in_range(camp)
 
     def farm_group_attack(self, group):
-        """Attack camps in `group` in pre-sorted Smith order (damaging monsters first)."""
+        """Choose a pack spell and splash centre, then apply the ordinary reset."""
         occupied = cambc.vision.camp_tiles()
-        for camp, tile, _, _, _ in self.group_info(group)[7]:
+        entries = self.group_info(group)[7]
+        me = cambc.me()
+        origin = safe_position(me)
+        targets = []
+        for camp, tile, _, strength, _ in entries:
+            if (occupied.is_set(tile) and safe_is_visible(camp)
+                    and distance(origin, tile) <= self.spell_reach + 1):
+                health = safe_health(camp)
+                if health > 0:
+                    targets.append((camp, tile, health, strength))
+        if not targets:
+            return False
+        points = [(p.x, p.y, hp) for _, p, hp, _ in targets]
+        if me.can_cast() and origin == self.turn_origin and cambc.fuel_remaining() > 1_100_000:
+            choice = None
+            for ability, kind, reach, info in my_abilities():
+                if kind not in ('damage', 'aoe', 'cc') or not ready(ability, me):
+                    continue
+                damage = ability.damage_amount()
+                if damage <= 0:
+                    continue
+                radius = 1 if kind == 'aoe' else 0
+                for camp, tile, hp, strength in targets:
+                    if distance(origin, tile) > reach:
+                        continue
+                    useful = pack_damage(points, (tile.x, tile.y), damage, radius)
+                    if choice is None or useful > choice[0]:
+                        choice = useful, ability, camp, tile
+            if choice and choice[0] > me.strength():
+                _, ability, camp, tile = choice
+                try:
+                    used = ability.use(camp if ability.can_target_camps() else tile)
+                    acted()
+                    if used:
+                        attack_if_in_range(camp)
+                        return True
+                except Exception:
+                    acted()
+        if self.champ == cambc.ChampionType.VARG:
+            strength = me.strength() * me.base_stats().camp_damage_multiplier
+            in_range = [entry for entry in targets if distance(origin, entry[1]) <= me.attack_range()]
+            if in_range:
+                camp, _, _, _ = max(in_range, key=lambda entry: pack_damage(
+                    points, (entry[1].x, entry[1].y), strength, 1))
+                if attack_if_in_range(camp):
+                    return True
+        for camp, tile, _, _, _ in entries:
             if occupied.is_set(tile) and safe_is_visible(camp) and self.farm_attack(camp):
                 return True
         return False
@@ -829,11 +887,39 @@ class Bot:
                 return
         # Finish an in-range member of the chosen group before rescoring routes.
         if self.group is not None:
+            region = self.group_info(self.group)[4]
+            if not (region & visible).is_empty():
+                state = self.group.state()
+                if isinstance(state, game_map.CampGroupRewardAvailable):
+                    capturers = [int(a) for a in safe_visible_allies()
+                                 if safe_position(a) and region.is_set(safe_position(a))]
+                    if not capturers or min(capturers) == int(me):
+                        self.claim(self.group)
+                        if not region.is_set(me.position()):
+                            move_towards_closest(region)
+                        return
             if self.siege_farm(self.group):
                 return
             if self.farm_group_attack(self.group):
                 self.claim(self.group)
                 return
+            # Execute a chosen route before paying to search the whole map again.
+            # Reconsider promptly on arrival, respawn, obstruction, or a new threat.
+            info = self.group_info(self.group)
+            known = not (info[4] & visible).is_empty()
+            state = self.group.state() if known else None
+            if (now - self.job_round <= 12 and not safe_visible_enemies()
+                    and not isinstance(state, (game_map.CampGroupRespawning, game_map.CampGroupRewardAvailable))):
+                goals = cambc.Bitboard()
+                for _, tile, _, strength, _ in info[7]:
+                    if strength > 0 and (not visible.is_set(tile) or occupied_camps.is_set(tile)):
+                        goals.set(tile)
+                if goals.is_empty():
+                    goals = info[4]
+                self.claim(self.group)
+                if move_towards_closest(goals, avoid=self.unseen_camp_tiles(now, visible) & ~info[4]):
+                    self.farm_group_attack(self.group)
+                    return
         if not self.warm(SOFT_FLOOR + COST_SETUP + COST_SCAN) or not LEDGER.optional(COST_SETUP + COST_SCAN):
             self.cuts += 1
             return
@@ -1099,6 +1185,7 @@ class Bot:
                 best_travel = travel
                 best_spawn_travel = sfield.get(approach)
         self.group = best
+        self.job_round = now
         self.claim(best)
         if best is None:
             return
@@ -1154,50 +1241,62 @@ class Bot:
         if min_dist > 6:
             return False
 
-        # 1. Immediate in-range defense / opportunity: if any enemy is in attack or spell range, fight!
-        if me.can_cast() and origin == self.turn_origin:
+        # Compare the units that can actually support this engagement. Nearby
+        # weak allies are not equivalent to fully upgraded enemies.
+        foes = [e for e in enemies if distance(origin, safe_position(e)) <= 5]
+        friends = {int(me): me}
+        for ally in safe_visible_allies():
+            if distance(origin, safe_position(ally)) <= 4 and not safe_is_recalling(ally):
+                friends[int(ally)] = ally
+        def power(unit):
+            return safe_health(unit) * (safe_strength(unit) + unit.focus() * 0.3)
+        allied_power = sum(power(a) for a in friends.values())
+        enemy_power = sum(power(e) for e in foes)
+        favourable = allied_power >= enemy_power * (1.15 if self.is_duo else 0.95)
+        if (min_dist <= 3 and enemy_power > allied_power * 1.8
+                and safe_health(me) < safe_max_health(me) * 0.55):
+            self.retreat()
+            return True
+
+        # Compare casts by useful damage, kills and interrupts across the pack.
+        if me.can_cast() and origin == self.turn_origin and cambc.fuel_remaining() > 1_100_000:
+            choice = None
+            enemy_points = [(safe_position(e).x, safe_position(e).y, safe_health(e)) for e in enemies]
             for ability, kind, reach, info in my_abilities():
                 if kind is None or not ready(ability, me):
                     continue
-                if kind == 'shield' and min_dist <= 3:
+                if kind == 'shield' and min_dist <= 3 and safe_health(me) < safe_max_health(me) * 0.6:
                     try:
                         ability.use(me)
                     except Exception:
                         pass
                     acted()
                     break
-                if kind == 'cc':
-                    cc_targets = [e for e in enemies if safe_is_visible(e)
-                                  and distance(origin, safe_position(e)) <= reach
-                                  and e.passive() != cambc.PassiveType.STUN_IMMUNITY
-                                  and not e.buffs().has_stun()]
-                    if cc_targets:
-                        best_cc = max(cc_targets, key=lambda e: (safe_is_submitting_gems(e), safe_gem_count(e), safe_strength(e)))
-                        try:
-                            best_cc_pos = safe_position(best_cc)
-                            ability.use(best_cc if ability.can_target_enemies() else best_cc_pos)
-                            acted()
-                            attack_if_in_range(best_cc)
-                            if info.exclusive_with_movement and not me.can_attack():
-                                return True
-                        except Exception:
-                            acted()
-                        break
-                elif kind in ('damage', 'aoe'):
-                    dmg_targets = [e for e in enemies if safe_is_visible(e)
-                                   and distance(origin, safe_position(e)) <= reach]
-                    if dmg_targets:
-                        best_dmg = min(dmg_targets, key=lambda e: safe_health(e))
-                        try:
-                            best_dmg_pos = safe_position(best_dmg)
-                            ability.use(best_dmg if ability.can_target_enemies() else best_dmg_pos)
-                            acted()
-                            attack_if_in_range(best_dmg)
-                            if info.exclusive_with_movement and not me.can_attack():
-                                return True
-                        except Exception:
-                            acted()
-                        break
+                if kind not in ('cc', 'damage', 'aoe'):
+                    continue
+                damage = ability.damage_amount()
+                for enemy in enemies:
+                    pos = safe_position(enemy)
+                    if distance(origin, pos) > reach:
+                        continue
+                    score = pack_damage(enemy_points, (pos.x, pos.y), damage, 1 if kind == 'aoe' else 0)
+                    if safe_health(enemy) <= damage:
+                        score += 100 + safe_gem_count(enemy)
+                    if kind == 'cc' and enemy.passive() != cambc.PassiveType.STUN_IMMUNITY and not enemy.buffs().has_stun():
+                        score += 60 + (200 if safe_is_submitting_gems(enemy) else 0)
+                    if choice is None or score > choice[0]:
+                        choice = score, ability, enemy, pos, info
+            if choice and me.can_cast():
+                _, ability, target, pos, info = choice
+                try:
+                    used = ability.use(target if ability.can_target_enemies() else pos)
+                    acted()
+                    if used:
+                        attack_if_in_range(target)
+                        if info.exclusive_with_movement and not me.can_attack():
+                            return True
+                except Exception:
+                    acted()
 
         enemies = [
             e for e in safe_visible_enemies()
@@ -1239,7 +1338,7 @@ class Bot:
             no_brawl = self.champ == cambc.ChampionType.CASSI or (self.ranged_caster and self.investment_map())
             enemies_5 = sum(1 for e in enemies if distance(cur_pos, safe_position(e)) <= 5)
             allies_5 = sum(1 for a in safe_visible_allies() if safe_position(a) and distance(cur_pos, safe_position(a)) <= 5 and not safe_is_recalling(a))
-            can_brawl = not no_brawl and (self.monolith_only or allies_5 >= enemies_5)
+            can_brawl = favourable and not no_brawl and (self.monolith_only or allies_5 >= enemies_5)
             brawl_reach = 4 if self.monolith_only else 3
             priority_targets = [
                 e for e in enemies
@@ -1250,7 +1349,7 @@ class Bot:
                         and (tiles_around(safe_position(e), 2) & enemy_spawn).is_empty())
                 )
             ]
-            if priority_targets:
+            if priority_targets and favourable:
                 target = max(priority_targets, key=lambda e: (safe_is_submitting_gems(e), safe_gem_count(e) * 4, -safe_health(e), -distance(cur_pos, safe_position(e))))
                 t_pos = safe_position(target)
                 moved = False
@@ -1764,7 +1863,24 @@ class Bot:
             item = Item.POWER_SHARD_OF_FOCUS if focus_build else Item.POWER_SHARD_OF_STRENGTH
             if getattr(policy, 'JUNGLE_BUILD', False):
                 self.investment_map()
-                if self.resource_mode:
+                if getattr(policy, 'TOP_BUILD', False) and not self.resource_mode and champ == cambc.ChampionType.REN:
+                    # Retaliation hits every attacker: preserve Ren's Focus and
+                    # health scaling in crowded fights rather than treating him
+                    # as another basic-attack farmer.
+                    item = Item.POWER_SHARD_OF_FOCUS
+                    prereqs = (
+                        (Item.BRUISER_SHARD_OF_HEALTH, Item.BRUISER_EMBLEM_OF_HEALTH),
+                        (Item.JUNGLE_SHARD_OF_FOCUS, Item.JUNGLE_EMBLEM_OF_FOCUS),
+                        (Item.DURABILITY_SHARD_OF_HEALTH, Item.DURABILITY_EMBLEM_OF_HEALTH),
+                    )
+                elif getattr(policy, 'TOP_BUILD', False) and not self.resource_mode:
+                    monster = Item.MONSTER_SHARD_OF_FOCUS if focus_build else Item.MONSTER_SHARD_OF_STRENGTH
+                    emblem = Item.MONSTER_EMBLEM_OF_FOCUS if focus_build else Item.MONSTER_EMBLEM_OF_STRENGTH
+                    prereqs = (
+                        (Item.JUNGLE_SHARD_OF_HEALTH, Item.JUNGLE_EMBLEM_OF_HEALTH),
+                        (monster, emblem),
+                    )
+                elif self.resource_mode:
                     jungle = Item.JUNGLE_SHARD_OF_FOCUS if focus_build else Item.JUNGLE_SHARD_OF_STRENGTH
                     emblem = Item.JUNGLE_EMBLEM_OF_FOCUS if focus_build else Item.JUNGLE_EMBLEM_OF_STRENGTH
                     prereqs = ((jungle, emblem),)
@@ -1772,24 +1888,25 @@ class Bot:
                     prereqs = (
                         (Item.BRUISER_SHARD_OF_HEALTH, Item.BRUISER_EMBLEM_OF_HEALTH),
                         (Item.JUNGLE_SHARD_OF_FOCUS, Item.JUNGLE_EMBLEM_OF_FOCUS),
+                        (Item.DURABILITY_SHARD_OF_FOCUS, Item.DURABILITY_EMBLEM_OF_FOCUS),
                     )
                 elif champ == cambc.ChampionType.REN:
                     prereqs = (
                         (Item.BRUISER_SHARD_OF_HEALTH, Item.BRUISER_EMBLEM_OF_HEALTH),
                         (Item.JUNGLE_SHARD_OF_FOCUS, Item.JUNGLE_EMBLEM_OF_FOCUS),
-                        (Item.DURABILITY_SHARD_OF_HEALTH, Item.DURABILITY_EMBLEM_OF_HEALTH),
+                        (Item.DURABILITY_SHARD_OF_FOCUS, Item.DURABILITY_EMBLEM_OF_FOCUS),
                     )
                     item = Item.POWER_SHARD_OF_FOCUS
                 elif champ == cambc.ChampionType.RYTH:
                     prereqs = (
                         (Item.JUNGLE_SHARD_OF_STRENGTH, Item.JUNGLE_EMBLEM_OF_STRENGTH),
                         (Item.BRUISER_SHARD_OF_HEALTH, Item.BRUISER_EMBLEM_OF_HEALTH),
-                        (Item.DURABILITY_SHARD_OF_HEALTH, Item.DURABILITY_EMBLEM_OF_HEALTH),
+                        (Item.DURABILITY_SHARD_OF_STRENGTH, Item.DURABILITY_EMBLEM_OF_STRENGTH),
                     )
                 elif champ == cambc.ChampionType.ISSAC:
                     prereqs = (
                         (Item.JUNGLE_SHARD_OF_STRENGTH, Item.JUNGLE_EMBLEM_OF_STRENGTH),
-                        (Item.DURABILITY_SHARD_OF_HEALTH, Item.DURABILITY_EMBLEM_OF_HEALTH),
+                        (Item.DURABILITY_SHARD_OF_STRENGTH, Item.DURABILITY_EMBLEM_OF_STRENGTH),
                     )
                 else:
                     jungle = Item.JUNGLE_SHARD_OF_FOCUS if focus_build else Item.JUNGLE_SHARD_OF_STRENGTH
@@ -1862,11 +1979,17 @@ class Bot:
         if at_spawn and safe_health(me) < safe_max_health(me):
             return
 
-        if self.combat_turn():
+        bag = me.gem_count()
+        altar_dist = self.altar_gap(origin)
+        # Deposit before general skirmishing can displace a carrier from the
+        # altar. This is particularly important when one bag wins the game.
+        winning_bag = bag > 0 and cambc.global_submitted_gems(Team.ALLY) + bag >= cambc.constants.WINNING_GEMS
+        if bag and (altar_dist <= cambc.constants.SUBMIT_GEMS_RANGE or (winning_bag and altar_dist <= 4)):
+            self.bank()
             return
 
-        if not warming and self.place_ward():
-            self.observe_enemies()
+        if self.combat_turn():
+            return
 
         enemies = safe_visible_enemies()
         close_enemies = [e for e in enemies if distance(origin, safe_position(e)) <= 8]
@@ -1910,6 +2033,10 @@ class Bot:
                 return
 
         self.farm_camps()
+
+        # Wards use the fuel left after this turn's economic action.
+        if not warming and cambc.fuel_remaining() > 1_400_000:
+            self.place_ward()
 
         try:
             me.set_priority(1 + below(100))

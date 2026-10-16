@@ -1,5 +1,8 @@
 # Coordinated economy with offline policy learning
 
+Historical v15 report. For the current upload and newer baseline comparison, see
+[`v16-strategy.md`](v16-strategy.md). The source directories now contain v16.
+
 16 October 2026. This supersedes the recommendation to adopt `topteam.zip`.
 The implementation is `bots/league`; results are recorded separately below.
 
