@@ -31,3 +31,13 @@ def publish(word, slot, job, now):
 def claimed_jobs(word, slot, now):
     return {record & 63 for index, record in enumerate(live_claims(word, now))
             if index != slot and record & 63}
+
+
+def job_claim_counts(word, slot, now):
+    counts = {}
+    for index, record in enumerate(live_claims(word, now)):
+        if index != slot and record & 63:
+            job = record & 63
+            counts[job] = counts.get(job, 0) + 1
+    return counts
+

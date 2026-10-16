@@ -3,7 +3,7 @@ from math import ceil
 from operator import itemgetter
 from randomness import below
 import policy
-from coordination import publish, claimed_jobs
+from coordination import publish, claimed_jobs, job_claim_counts
 
 import cambc
 from cambc import game_map
@@ -488,6 +488,7 @@ class Bot:
         self.groups = game_map.camp_groups()
         self.job_ids = {id(group): index + 1 for index, group in enumerate(self.groups)}
         handles = sorted(int(champ) for champ in cambc.champions(Team.ALLY))
+        self.team_size = max(1, len(handles))
         self.claim_slot = handles.index(int(cambc.me()))
         self.claims_enabled = policy.JOB_LEASES and len(handles) <= 6 and len(self.groups) <= 63
         self.altars = game_map.altars().positions()
@@ -519,6 +520,8 @@ class Bot:
         self.ginfo = {}
         self.gpartial = {}
         self.rings = {}
+        self.handle_region = {}
+        self.all_camp_spawns = None
         self.camp_ranges = []
         self.altar_field = None
         self.spawn_altar_dist = 15
@@ -576,29 +579,9 @@ class Bot:
             return self.siege_capable and self.monolith_only and cambc.me().focus() >= 250
         return self.siege_capable and len(entries) >= 8
 
-    def should_kite_group(self, group):
-        if self.raid(group):
-            return True
-        if not self.ranged_caster:
-            return False
-        entries = self.group_info(group)[7]
-        # entries is pre-sorted with damaging monsters first: check if this is a single
-        # high-damage Elk guarding harmless clusters (expanse, elkring, collision, swirl).
-        if len(entries) >= 2 and entries[0][3] >= 50 and entries[1][3] == 0:
-            camp, tile, base_hp, _, _ = entries[0]
-            if safe_is_visible(camp):
-                hp = safe_health(camp)
-            elif cambc.vision.visible_tiles().is_set(tile) and not cambc.vision.camp_tiles().is_set(tile):
-                hp = 0
-            else:
-                hp = base_hp
-            return hp > 700
-        return False
-
     def siege_farm(self, group):
         """Keep damage casters outside stationary monsters' retaliation range."""
-        is_raid = self.raid(group)
-        if not is_raid and not self.should_kite_group(group):
+        if not self.raid(group):
             return False
         info = self.group_info(group)
         visible = cambc.vision.visible_tiles()
@@ -626,8 +609,6 @@ class Bot:
         if not camps:
             return False
         goals = reach_tiles & ~danger & ~blocked_tiles()
-        if not is_raid and goals.is_empty():
-            return False
         if any(entry[4] for entry in info[7]):
             quiet = self.siege_goal_cache.get(id(group))
             if quiet is None:
@@ -641,8 +622,8 @@ class Bot:
             if not quiet.is_empty():
                 goals = quiet
         if danger.is_set(origin):
-            moved = move_towards_closest(goals)
-            return True if is_raid else moved
+            move_towards_closest(goals)
+            return True
         if me.can_cast() and origin == self.turn_origin:
             best = None
             for ability, kind, reach, _ in my_abilities():
@@ -693,11 +674,28 @@ class Bot:
                 if info is None:
                     return False
                 self.approach_ring(group, info[4])
-        self.gstatic = [(info[0], info[1], info[2], info[3], index, group)
-                        for index, group in enumerate(self.groups)
-                        for info in (self.group_info(group),)]
+        all_spawns = cambc.Bitboard()
+        gstatic = []
+        for index, group in enumerate(self.groups):
+            info = self.group_info(group)
+            all_spawns |= info[4]
+            self.handle_region[info[0]] = info[4]
+            gstatic.append((info[0], info[1], info[2], info[3], index, group))
+        self.all_camp_spawns = all_spawns
+        self.gstatic = gstatic
         self.max_camp_range = max(self.camp_ranges + [0])
         return True
+
+    def unseen_camp_tiles(self, now, visible):
+        if self.all_camp_spawns is None:
+            return cambc.Bitboard()
+        unseen = self.all_camp_spawns & ~visible
+        for handle, until in self.respawns.items():
+            if until > now:
+                region = self.handle_region.get(handle)
+                if region is not None:
+                    unseen &= ~region
+        return unseen
 
     def group_info(self, group, floor=None):
         """(handle, tier, first spawn x, first spawn y, spawn mask, gems, gold, camps,
@@ -722,8 +720,8 @@ class Bot:
                 gem_cluster = gem_cluster or camp.is_gem_cluster()
                 partial[1] = gem_cluster
             gems = group.gem_value()
-            tier = 0 if gem_cluster else (1 if gems > 0 else 2)
             first = camps[0][1]
+            tier = 0 if (gem_cluster and home_side(first.x, first.y) and len(camps) <= 3) else (1 if gems > 0 else 2)
             xs = [entry[1].x for entry in camps]
             ys = [entry[1].y for entry in camps]
             box = (min(xs), min(ys), max(xs), max(ys))
@@ -841,22 +839,27 @@ class Bot:
             return
         allies = safe_visible_allies()
         blocked = blocked_tiles()
+        unseen_camps = cambc.Bitboard() if self.monolith_only else self.unseen_camp_tiles(now, visible)
+        route_blocked = blocked | unseen_camps
         my_pos = me.position()
+        route_Blocked_me = route_blocked.copy()
+        route_Blocked_me.set(my_pos, False)
+        route_blocked = route_Blocked_me
         try:
-            field, reached = route_field(blocked, my_pos, NEAR_FIELD)
+            field, reached = route_field(route_blocked, my_pos, NEAR_FIELD)
         except Exception:
             return
         near = True
-        free = reached & ~blocked
+        free = reached & ~route_blocked
         best, best_value, best_wait = None, -1, 0
         best_travel, best_spawn_travel = 0, 999
         px, py = my_pos.x, my_pos.y
         my_id = int(me)
-        reserved = set()
+        claim_counts = {}
         if self.claims_enabled:
             buffer = bytearray(8)
             cambc.shared_memory.read(0, buffer)
-            reserved = claimed_jobs(int.from_bytes(buffer, 'little'), self.claim_slot, now)
+            claim_counts = job_claim_counts(int.from_bytes(buffer, 'little'), self.claim_slot, now)
         current = self.group
         current_id = self.group_info(current)[0] if current is not None else None
 
@@ -881,10 +884,18 @@ class Bot:
             keyed.sort()
             nearby = [entry[3] for entry in keyed[:16]]
             self.route_order = (sort_key, nearby)
-        candidates = ([current] if current is not None else []) + nearby
+        candidates = ([current] if current is not None else []) + [g for g in nearby if g is not current]
 
         ally_tiles = None
-        idle_allies = None
+        idle_allies = []
+        for ally in allies:
+            if int(ally) != my_id and safe_gem_count(ally) == 0 and not safe_is_recalling(ally):
+                apos = safe_position(ally)
+                if apos:
+                    idle_allies.append((apos.x, apos.y, int(ally)))
+        avail_squad = 1 + len(idle_allies)
+        free_allies = max(0, len(idle_allies) - sum(claim_counts.values()))
+
         dps = max(1, me.strength() * me.base_stats().camp_damage_multiplier)
         spell_dps_bonus = sum(a.damage_amount() for a, k, _, _ in my_abilities() if k in ('damage', 'aoe', 'cc')) / 8.0
         mit_mult = self.camp_damage_taken_mult(me)
@@ -898,14 +909,15 @@ class Bot:
         altar_field = self.altar_field
         sfield = self.spawn_field()
         is_varg = self.champ == cambc.ChampionType.VARG
+        early_rally = now <= 85 and dps <= 60
         for group in candidates:
-            if not LEDGER.optional(COST_SCAN + (COST_CANDIDATE * max(1, len(group) / 3)
+            handle, _, gx, gy, region, gems, gold, camp_info, box, bank_lb = self.group_info(group)
+            if not LEDGER.optional(COST_SCAN + (COST_CANDIDATE * max(1, len(camp_info) / 3)
                                                 if best is not None else 0)):
                 self.cuts += 1
                 if best is None:
                     return
                 break
-            handle, _, gx, gy, region, gems, gold, camp_info, box, bank_lb = self.group_info(group)
             if sfield.get(camp_info[0][1]) >= 65535:
                 continue
             on_home = home_side(gx, gy)
@@ -949,13 +961,6 @@ class Bot:
             fixed = capture_time + 1 + bank_lb + ceil(gems / 10)
             raid = self.raid(group)
             tfac = 1.0 if on_home else (0.35 if now < 150 else 0.55)
-            scale = (0.001 if gems == 0 and not invest else 1) * (1.2 if handle == current_id else 1) * tfac
-            tough_group = sum(c[3] for c in camp_info) >= 60 and not capturing
-            claim_scale = (0.75 if tough_group else policy.CLAIM_FACTOR) if self.job_ids[id(group)] in reserved and not raid else 1
-            scale *= claim_scale
-            travel_lb = max(0, box_distance(px, py, box) - 1, wait)
-            if worth / max(1, travel_lb + fixed) * scale * 1.000001 <= best_value:
-                continue
 
             camps = []
             if not capturing:
@@ -977,59 +982,87 @@ class Bot:
                 if monolith:
                     continue
 
+            job_id = self.job_ids[id(group)]
+            claimed = claim_counts.get(job_id, 0)
+            avail_for_group = 1 + claimed + free_allies
             incoming, clear_turns = 0, 0
+            k_req = 1
             if camps:
                 # camp_info is pre-sorted with damaging monsters first and 0-damage clusters last.
                 remaining = sum(strength for _, strength in camps)
-                moderate = remaining <= 60 and not raid
-                eff_dps = dps + (spell_dps_bonus if moderate else 0)
-                if moderate and is_varg and len(camps) > 1:
+                total_str = remaining
+                eff_dps = dps + (spell_dps_bonus if not raid else 0)
+                if not raid and is_varg and len(camps) > 1:
                     eff_dps *= min(len(camps), 1.8)
                 for health, strength in camps:
                     turns = ceil(health / eff_dps)
                     incoming += turns * remaining
                     clear_turns += turns
                     remaining -= strength
-                if moderate:
+                if not raid:
                     incoming *= mit_mult
                 if raid:
                     spell_dps = sum(a.damage_amount() for a, k, r, _ in my_abilities()
                                     if k in ('damage', 'aoe', 'cc') and r > 3) / 8
                     clear_turns = ceil(sum(h for h, _ in camps) / max(1, spell_dps))
                     incoming = 0
-                elif (self.ranged_caster and incoming > safe_risk
-                      and len(camps) >= 2 and camps[0][1] >= 50 and camps[1][1] == 0):
-                    spell_dps = max(15.0, spell_dps_bonus)
-                    clear_turns = ceil(sum(h for h, _ in camps) / (spell_dps * 1.4))
-                    incoming = safe_risk * 0.5
-                bound = worth / max(1, travel_lb + clear_turns + fixed) * scale
-                if incoming > safe_risk:
-                    bound *= 0.1 * my_health / max(my_health, incoming)
-                if bound * 1.000001 <= best_value:
-                    continue
+                elif incoming > safe_risk and total_str >= 40:
+                    # Minimum viable squad size k_req (2..4) that brings per-hero risk within safe_risk.
+                    for k in (2, 3, 4):
+                        if k >= self.team_size or incoming / (k * min(k, 2.2)) <= safe_risk:
+                            k_req = min(self.team_size, k)
+                            break
+                    else:
+                        k_req = min(self.team_size, 4)
+                    if early_rally and total_str <= 80:
+                        k_req = max(k_req, min(self.team_size, 3))
+                    k_eff = min(k_req, avail_for_group if (early_rally or claimed > 0) else min(avail_for_group, 2))
+                    clear_turns = ceil(clear_turns / k_eff)
+                    incoming = incoming / (k_eff * min(k_eff, 2.2))
+                elif early_rally and total_str >= 40 and total_str <= 80:
+                    k_req = min(self.team_size, 3)
+                    k_eff = min(k_req, avail_for_group)
+                    clear_turns = ceil(clear_turns / k_eff)
+                    incoming = incoming / (k_eff * min(k_eff, 2.2))
+
+            if raid:
+                claim_scale = 1.0
+            elif capturing:
+                claim_scale = policy.CLAIM_FACTOR if claimed else 1.0
+            elif claimed > 0:
+                if claimed < k_req:
+                    claim_scale = 1.35 if (early_rally or claimed >= 1) else 0.90
+                else:
+                    claim_scale = policy.CLAIM_FACTOR
+            else:
+                claim_scale = 1.0
+
+            scale = (0.001 if gems == 0 and not invest else 1) * (1.2 if handle == current_id else 1) * tfac * claim_scale
+            travel_lb = max(0, box_distance(px, py, box) - 1, wait)
+            bound = worth / max(1, travel_lb + clear_turns + fixed) * scale
+            if incoming > safe_risk:
+                bound *= 0.1 * my_health / max(my_health, incoming)
+            if bound * 1.000001 <= best_value:
+                continue
 
             ring = self.approach_ring(group, region)
             approaches = ring & free
-            approximate = False
             if approaches.is_empty():
-                if not near:
+                if not near or not LEDGER.afford(COST_FIELD):
                     continue
-                if not LEDGER.optional(COST_FIELD + COST_SCAN):
-                    approximate = True
-                    approach = camp_info[0][1]
-                if not approximate:
-                    try:
-                        field, reached = route_field(blocked, my_pos, None)
-                    except Exception:
-                        return
-                    near = False
-                    free = reached & ~blocked
-                    approaches = ring & free
-                    if approaches.is_empty():
-                        continue
-            if not approximate:
-                approach = min(approaches.positions(), key=field.get)
-            travel = travel_lb if approximate else field.get(approach)
+                try:
+                    field, reached = route_field(route_blocked, my_pos, None)
+                except Exception:
+                    return
+                near = False
+                free = reached & ~route_blocked
+                approaches = ring & free
+                if approaches.is_empty():
+                    continue
+            approach = min(approaches.positions(), key=field.get)
+            travel = field.get(approach)
+            if travel >= 65535:
+                continue
 
             ax, ay = approach.x, approach.y
             bank_travel = altar_field.get(approach)
@@ -1047,23 +1080,16 @@ class Bot:
             risk = incoming + danger
             if risk > safe_risk:
                 value *= 0.1 * my_health / max(my_health, risk)
-            if idle_allies is None:
-                idle_allies = []
-                for ally in allies:
-                    if int(ally) != my_id and safe_gem_count(ally) == 0 and not safe_is_recalling(ally):
-                        apos = safe_position(ally)
-                        if apos:
-                            idle_allies.append((apos.x, apos.y, int(ally)))
             closer = 0
             for x, y, ident in (() if raid else idle_allies):
                 ally_dist = max(abs(x - ax), abs(y - ay))
                 if ally_dist < travel or (ally_dist == travel and ident < my_id):
                     closer += 1
             if closer:
-                if tough_group and closer == 1:
-                    value *= 0.80
+                if closer < k_req:
+                    pass
                 else:
-                    value *= 0.35 ** closer
+                    value *= 0.35 ** (closer - k_req + 1)
             if handle == current_id:
                 value *= 1.2
             if wait and danger:
@@ -1090,13 +1116,14 @@ class Bot:
             return
         if self.siege_farm(best):
             return
+        best_info = self.group_info(best)
+        entries = best_info[7]
         if best is not current:
             if self.farm_group_attack(best):
                 return
         # Prioritize approaching living damaging monsters first so we never hit a 0-damage
         # cluster while an Elk/Wolf hits us from range 3!
         goals = cambc.Bitboard()
-        entries = self.group_info(best)[7]
         for camp, tile, _, base_str, _ in entries:
             if base_str > 0 and (not visible.is_set(tile) or occupied_camps.is_set(tile)):
                 goals.set(tile)
@@ -1106,7 +1133,7 @@ class Bot:
                     goals.set(tile)
         if goals.is_empty():
             goals = best.spawn_tiles()
-        move_towards_closest(goals)
+        move_towards_closest(goals, avoid=unseen_camps & ~best_info[4])
         self.farm_group_attack(best)
 
     def combat_turn(self):
@@ -1206,15 +1233,21 @@ class Bot:
             return False
 
         # 2. For non-carriers: if an enemy carrier or submitting enemy or close enemy is nearby, close in and attack!
-        if me.gem_count() == 0 and safe_health(me) >= safe_max_health(me) * (0.50 if self.is_duo else 0.40):
+        if (me.gem_count() == 0 and safe_health(me) >= safe_max_health(me) * (0.50 if self.is_duo else 0.40)
+                and (self.monolith_only or not self.threats(origin, 3))):
             cur_pos = safe_position(me) or origin
             no_brawl = self.champ == cambc.ChampionType.CASSI or (self.ranged_caster and self.investment_map())
+            enemies_5 = sum(1 for e in enemies if distance(cur_pos, safe_position(e)) <= 5)
+            allies_5 = sum(1 for a in safe_visible_allies() if safe_position(a) and distance(cur_pos, safe_position(a)) <= 5 and not safe_is_recalling(a))
+            can_brawl = not no_brawl and (self.monolith_only or allies_5 >= enemies_5)
+            brawl_reach = 4 if self.monolith_only else 3
             priority_targets = [
                 e for e in enemies
                 if safe_is_visible(e) and (
                     safe_is_submitting_gems(e)
                     or safe_gem_count(e) > 0
-                    or (not no_brawl and distance(cur_pos, safe_position(e)) <= 4)
+                    or (can_brawl and distance(cur_pos, safe_position(e)) <= brawl_reach
+                        and (tiles_around(safe_position(e), 2) & enemy_spawn).is_empty())
                 )
             ]
             if priority_targets:
@@ -1814,7 +1847,7 @@ class Bot:
             return
         if me.is_submitting_gems():
             try:
-                if self.channel_damage(origin, me.remaining_channel_time() + 1) < safe_health(me) * 0.85:
+                if self.channel_damage(origin, min(me.remaining_channel_time() + 1, 5)) < safe_health(me) * 0.85:
                     return
                 me.cancel_submit_gems()
                 acted()

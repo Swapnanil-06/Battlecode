@@ -8,7 +8,7 @@ nothing) and the turn yields with fuel to spare.
 """
 import cambc
 
-RESERVE_ACTION = 250_000
+RESERVE_ACTION = 350_000
 # Optional depth (longer route scans, ward siting) stops here so ordinary turns end with
 # room to spare; only mandatory steps may dig down to RESERVE_ACTION.
 SOFT_FLOOR = 500_000
@@ -34,7 +34,8 @@ class Ledger:
 
     def afford(self, cost):
         """True when a step costing up to `cost` still leaves RESERVE_ACTION; else abort."""
-        if cambc.fuel_remaining() >= RESERVE_ACTION + cost:
+        scale = max(1, cambc.game_map.width() * cambc.game_map.height() / 6400)
+        if cambc.fuel_remaining() >= RESERVE_ACTION + int(cost * scale):
             return True
         self.aborts += 1
         return False
@@ -42,7 +43,8 @@ class Ledger:
 
     def optional(self, cost):
         """True when optional work costing up to `cost` still leaves SOFT_FLOOR."""
-        return cambc.fuel_remaining() >= SOFT_FLOOR + cost
+        scale = max(1, cambc.game_map.width() * cambc.game_map.height() / 6400)
+        return cambc.fuel_remaining() >= SOFT_FLOOR + int(cost * scale)
 
 
 LEDGER = Ledger()
