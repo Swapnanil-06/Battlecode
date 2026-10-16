@@ -11,7 +11,8 @@ const SNAPSHOT = 184696;
 const CHAMPS = { countOffset: 120, dataOffset: 140, stride: 456 };
 const CAMPS = { countOffset: 124, dataOffset: 7436, stride: 232 };
 
-function findWasm() {
+function findWasm(ver = 1) {
+  const pat = new RegExp(`^v0_0_${ver}-.*\\.wasm$`);
   const roots = [process.env.CAMBC_ASSETS,
     path.join(os.homedir(), '.cache/cambc/assets'),
     path.join(os.homedir(), 'AppData/Local/cambc/assets')].filter(Boolean);
@@ -20,7 +21,7 @@ function findWasm() {
     for (const sha of fs.readdirSync(root)) {
       const dir = path.join(root, sha, 'visualiser/assets');
       if (!fs.existsSync(dir)) continue;
-      const f = fs.readdirSync(dir).find((n) => /^v0_0_1-.*\.wasm$/.test(n));
+      const f = fs.readdirSync(dir).find((n) => pat.test(n));
       if (f) return path.join(dir, f);
     }
   }
@@ -31,7 +32,9 @@ function readReplayBytes(file) {
   const buf = fs.readFileSync(file);
   if (buf[0] === 0x50 && buf[1] === 0x4b) {  // outer ZIP bundle
     return execFileSync(process.env.PYTHON || 'python', ['-c',
-      'import sys,zipfile; sys.stdout.buffer.write(zipfile.ZipFile(sys.argv[1]).read("replay.repl26a"))',
+      'import sys,os,zipfile;' +
+      'sys.platform=="win32" and __import__("msvcrt").setmode(sys.stdout.fileno(),os.O_BINARY);' +
+      'sys.stdout.buffer.write(zipfile.ZipFile(sys.argv[1]).read("replay.repl26a"))',
       file], { maxBuffer: 1 << 30 });
   }
   return buf;
@@ -40,6 +43,8 @@ function readReplayBytes(file) {
 async function main() {
   const file = process.argv[2];
   const every = Number(process.argv[process.argv.indexOf('--every') + 1]) || 1;
+  const bytes = readReplayBytes(file);
+  const ver = bytes[10] || 1;
   let mem;
   const wasi = {
     random_get: () => 0, clock_time_get: (_a, _b, p) => { new DataView(mem.buffer).setBigUint64(p, 0n, true); return 0; },
@@ -49,7 +54,7 @@ async function main() {
     fd_read: () => 8, fd_seek: () => 70, proc_exit: (c) => { throw new Error('exit ' + c); },
     fd_write: (_fd, iov, n, out) => { const d = new DataView(mem.buffer); let t = 0; for (let i = 0; i < n; i++) t += d.getUint32(iov + i * 8 + 4, true); d.setUint32(out, t, true); return 0; },
   };
-  const { instance } = await WebAssembly.instantiate(fs.readFileSync(findWasm()), {
+  const { instance } = await WebAssembly.instantiate(fs.readFileSync(findWasm(ver)), {
     wasi_snapshot_preview1: wasi, deep_wasm: { on_assert_fail_impl: () => 1 },
   });
   const x = instance.exports;
@@ -57,7 +62,6 @@ async function main() {
   x._initialize();
   const outBuf = x.Engine_Malloc(32);
   const check = (code) => { if (code !== 0) throw new Error('engine error ' + code); };
-  const bytes = readReplayBytes(file);
   const p = x.Engine_Malloc(bytes.length);
   new Uint8Array(mem.buffer, p, bytes.length).set(bytes);
   check(x.Game_FromReplayFileBytes(p, bytes.length, outBuf));
