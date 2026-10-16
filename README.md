@@ -14,11 +14,20 @@ A bot developed for the [Cambridge Battlecode '26 Autumn](https://2026a.battleco
 
 ## Bot
 
-The experimental, uploadable map-aware variant lives in [`bots/topteam/src/`](bots/topteam/src/).
-It preserves the current gameplay code and changes the draft on three tested
-map profiles. See [`docs/topteam-implementation.md`](docs/topteam-implementation.md)
-for the measured results and their limits. The established bot remains in
-[`bots/main/src/`](bots/main/src/).
+Upload bundle: [`quantum-altar.zip`](quantum-altar.zip). The complete validation
+record is in [`docs/league-results.json`](docs/league-results.json).
+It won **28/34** fixtures against the original bot across all 17 maps and both
+sides, plus **12/12** against three additional local opponent styles.
+
+The offline-learning candidate lives in [`bots/league/src/`](bots/league/src/).
+It adds team camp reservations, dash-plus-walk movement, investment and
+safe siege behaviour for large camps, plus incremental map-cache warm-up.
+[`runner/train_league.py`](runner/train_league.py)
+selects roster and policy settings using real WASI matches against frozen
+opponents, with separate validation maps. See
+[`docs/league-strategy.md`](docs/league-strategy.md) for research and results.
+The reference bot remains in [`bots/main/src/`](bots/main/src/).
+The earlier `topteam` map-profile experiment is superseded by this work.
 
 The Python bot lives in [`bots/main/src/`](bots/main/src/):
 
@@ -27,12 +36,10 @@ The Python bot lives in [`bots/main/src/`](bots/main/src/):
 - `bot.py`: legal movement, basic attacks, camp farming/capture, altar tribute and shopping.
 - `randomness.py`: deterministic spawn-seeded PRNG (WASI randomness is zero in matches).
 
-This baseline is derived from CAMBC 2.1.5's Python starter. It buys strength shards,
-recalls below 35% health, attacks enemies already in range, banks carried gems at
-the nearest reachable unlocked altar, and otherwise farms camps. Native bitboards
-and distance fields route around terrain and visible occupants. Standing on a
-cleared camp's spawn tile captures its rewards automatically. Existing channels
-are left running. It does not yet cast abilities or coordinate champions.
+This reference bot includes spell/reset use, greedy combat, camp farming,
+recall, tribute, warding and lock breaking. Native bitboards and distance fields
+route around terrain and visible occupants. A fuel ledger bounds optional work.
+Its policy stays fixed between games; local offline training is a separate process.
 
 ## Match Runner
 
@@ -45,18 +52,20 @@ See [`runner/README.md`](runner/README.md) for options and result files.
 
 ## Strategy
 
-The current bot is a working baseline, not a tuned competitive strategy.
-See [`docs/strategy-playbook.md`](docs/strategy-playbook.md) for planning notes.
+Use [`docs/league-strategy.md`](docs/league-strategy.md) for the current strategy,
+measured results and limitations. Older planning notes remain in
+[`docs/strategy-playbook.md`](docs/strategy-playbook.md).
 
 ## Development Setup
 
 From the repository root (Python 3.10+ recommended for the local runner):
 
 ```sh
-python -m pip install cambc==2.1.5
+python -m pip install cambc==2.1.6
 cambc init --yes .
-cambc build main
-cambc run main starter-python --map maps/collision.map26a --statistics replays/stats.json
+cambc maps pull
+cambc build bots/league
+cambc run bots/league bots/main --map maps/collision.map26a --statistics replays/stats.json
 ```
 
 The match runs to completion, headlessly, at the default fuel budget. All replays

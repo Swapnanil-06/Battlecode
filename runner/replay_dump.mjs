@@ -12,12 +12,17 @@ const CHAMPS = { countOffset: 120, dataOffset: 140, stride: 456 };
 const CAMPS = { countOffset: 124, dataOffset: 7436, stride: 232 };
 
 function findWasm() {
-  const root = path.join(os.homedir(), '.cache/cambc/assets');
-  for (const sha of fs.readdirSync(root)) {
-    const dir = path.join(root, sha, 'visualiser/assets');
-    if (!fs.existsSync(dir)) continue;
-    const f = fs.readdirSync(dir).find((n) => /^v0_0_1-.*\.wasm$/.test(n));
-    if (f) return path.join(dir, f);
+  const roots = [process.env.CAMBC_ASSETS,
+    path.join(os.homedir(), '.cache/cambc/assets'),
+    path.join(os.homedir(), 'AppData/Local/cambc/assets')].filter(Boolean);
+  for (const root of roots) {
+    if (!fs.existsSync(root)) continue;
+    for (const sha of fs.readdirSync(root)) {
+      const dir = path.join(root, sha, 'visualiser/assets');
+      if (!fs.existsSync(dir)) continue;
+      const f = fs.readdirSync(dir).find((n) => /^v0_0_1-.*\.wasm$/.test(n));
+      if (f) return path.join(dir, f);
+    }
   }
   throw new Error('visualiser wasm not cached; run `cambc view` once');
 }
@@ -25,7 +30,9 @@ function findWasm() {
 function readReplayBytes(file) {
   const buf = fs.readFileSync(file);
   if (buf[0] === 0x50 && buf[1] === 0x4b) {  // outer ZIP bundle
-    return execFileSync('unzip', ['-p', file, 'replay.repl26a'], { maxBuffer: 1 << 30 });
+    return execFileSync(process.env.PYTHON || 'python', ['-c',
+      'import sys,zipfile; sys.stdout.buffer.write(zipfile.ZipFile(sys.argv[1]).read("replay.repl26a"))',
+      file], { maxBuffer: 1 << 30 });
   }
   return buf;
 }
