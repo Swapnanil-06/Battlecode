@@ -67,7 +67,7 @@ carried gems, deaths, carrier deaths and every tribute. Options: `--every N` (sa
 rate), `--champs` (positions, health, gems), `--camps` (layout at round 1), `--locks`
 (altar locks), `--profile` (per-champion share of turns attacking, moving, idle,
 channelling, tributing or dead). The decoding offsets come from the visualiser's JS for
-engine v0.0.1 (cambc 2.1.6); recheck them when `cambc.toml` changes.
+engine v0.0.1 and v0.0.2, selected from replay metadata. `--items` includes final inventories; `--metadata-only` prints map dimensions and unmirrored template camp counts. These template counts differ from the live SDK layout after mirroring.
 
 ```sh
 node runner/replay_dump.mjs replays/gate/sparring_meta_expanse_A.repl26a --every 50
@@ -80,3 +80,30 @@ python runner/make_panel.py main sparring-meta --maps expanse elkring -o replays
 `run_final_gates.py` now also runs `sparring-meta` (the ladder-meta fast farmer: v5b's
 code with the Cassi & Issac / Vendetta / Varg / Ryth / Tavi draft) and prints the gem
 pace of every suite.
+
+
+## Top-team analysis and frozen comparison
+
+`analyse_match_groups.py` accepts the supplied ZIP paths, unpacks their replays
+under ignored `replays/top-five/`, and decodes through the official engine.
+Use `--metadata` to fetch public match-group metadata. Run `--help` for options.
+
+Freeze the desired baseline source under `replays/evaluation/incumbent/src/` first.
+Then evaluate a snapshot on all installed maps and both sides:
+
+```sh
+python runner/evaluate_candidate.py --output replays/evaluation/new-check
+```
+
+The output includes exact source/map hashes, full replays, diagnostics and
+`results.json`. It uses release mode, default fuel, complete matches and engine
+outcomes. Development fixtures informed policy selection; they are not an
+untouched holdout. Baseline fallback fixtures are near-mirrors.
+
+```sh
+cambc bundle replays/evaluation/new-check/agent --output quantum-altar-v16.zip
+python runner/release_report.py --evaluation replays/evaluation/new-check --bundle quantum-altar-v16.zip
+```
+
+The report checks every bundled source byte against the evaluated snapshot and
+both live source trees before recording the bundle hash.

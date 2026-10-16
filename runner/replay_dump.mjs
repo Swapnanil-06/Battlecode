@@ -67,6 +67,13 @@ async function main() {
   check(x.Game_FromReplayFileBytes(p, bytes.length, outBuf));
   const dv = () => new DataView(mem.buffer);
   const game = dv().getBigUint64(outBuf, true);
+  check(x.Game_GetBitboardMetadata(game, outBuf));
+  // Before simulation starts these counts describe the unmirrored map template,
+  // not the live SDK layout (central groups may be shared after mirroring).
+  const metadata = {width:dv().getInt32(outBuf,true), height:dv().getInt32(outBuf+4,true)};
+  check(x.Game_GetNumCamps(game, outBuf)); metadata.templateCamps=dv().getUint32(outBuf,true);
+  check(x.Game_GetNumCampGroups(game, outBuf)); metadata.templateGroups=dv().getUint32(outBuf,true);
+  if(process.argv.includes('--metadata-only')) { console.log(JSON.stringify(metadata)); return; }
   const snap = x.Engine_Malloc(SNAPSHOT);
   const args = x.Engine_Malloc(128);
   check(x.Game_Runner_SetCheckpointsEnabled(game, 1));
@@ -95,6 +102,7 @@ async function main() {
         earned: d2.getUint32(snap + 184248 + idx * 16, true),
         kda: [0, 1, 2].map((k) => d2.getUint32(snap + 184504 + idx * 12 + k * 4, true)),
         channel: g(440), channelTimer: gi(436),
+        ...(process.argv.includes('--items') ? { items: Array.from({length:42}, (_, k) => g(240 + k * 4)), maxHealth: d2.getFloat32(b + 32, true) } : {}),
       });
     }
     return {
@@ -178,7 +186,7 @@ async function main() {
   }
   console.log(JSON.stringify({
     steps: size, finalRound: final.round, outcome: final.outcome, submitted: final.submitted, drafts: final.drafts,
-    champs: final.champs.map((c) => ({ index: c.index, team: c.team, type: c.type, kda: c.kda, earned: c.earned })),
+    champs: final.champs.map((c) => ({ index: c.index, team: c.team, type: c.type, kda: c.kda, earned: c.earned, ...(c.items ? {items:c.items,maxHealth:c.maxHealth} : {}) })),
     events, rounds, prof,
   }));
 }

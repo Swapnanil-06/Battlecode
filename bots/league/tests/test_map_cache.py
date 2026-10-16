@@ -12,6 +12,8 @@ sdk = ModuleType('cambc')
 sdk.Team = SimpleNamespace(ALLY=0, ENEMY=1)
 sdk.ItemType = SimpleNamespace()
 sdk.game_map = ModuleType('cambc.game_map')
+sdk.game_map.spawn_region = lambda team: SimpleNamespace(
+    positions=lambda: [SimpleNamespace(x=0 if team == 0 else 100, y=0 if team == 0 else 100)])
 spec = importlib.util.spec_from_file_location('cache_test_bot', SOURCE / 'bot.py')
 module = importlib.util.module_from_spec(spec)
 with patch.dict(sys.modules, {'cambc': sdk, 'cambc.game_map': sdk.game_map}):

@@ -1,0 +1,9497 @@
+{
+  "baselineCommit": "f159455b5dadf35891871fd2e0470d033e4285fb",
+  "candidate": {
+    "inputs": {
+      "candidate": {
+        "bot.py": "550bdddad1d0783ceef0e2635e73cf66d9468d2c62b3bdda23531ee03161cb6b",
+        "camp_tactics.py": "f15916542c0713209cedc6b86041e01c820bd11d75b995e422f1ab6bf4f9ada8",
+        "combat.py": "60f6ae1e888974162413e9c4a474e6789a131c451450dfab4d87ad2ec5019aed",
+        "coordination.py": "252898abe1b343ec18cee8abfc131e23ceea8ef827282489b31567b65dc50cdb",
+        "draft.py": "f0a11317b7751e3c13dc7687d937a20e6fbcdcd0657ddf47dec156d09f7547c7",
+        "main.py": "ced49d58040ff76fc249ecadc9ee9754053501ef922832d87347ee710765ba7b",
+        "objective_policy.py": "d2d35c10628378417494c1b0d61f9137e48ebce89c1540970604cfbd626a8e39",
+        "planner\\__init__.py": "8a524fdf4bfab7e5a26a83ae80bea68cfb6aea5099d92266aae5b9bc29736eee",
+        "planner\\ledger.py": "3c6c589b9aa6669864126d5137197a66864bd56fa0391aec90597373ade11074",
+        "policy.py": "46c2607ef2ef00a4b21bc7fa05623bd8cda52189d5d576bcd15b976705d21657",
+        "portfolio.py": "3e2b5f3a218646318c3e8745589f891507e6bac2c6e6038771d5bc1fbef0b082",
+        "randomness.py": "121ecc39a08470f0d64e65bec8c9a98bd1293c214f70100314fb26ca3ac00b81",
+        "variants\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "variants\\incumbent\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "variants\\incumbent\\bot.py": "9ecaf05a9fa33af0f90cbac08103dff92bd6f44cd8f5de92c443352655b7d968",
+        "variants\\incumbent\\combat.py": "60f6ae1e888974162413e9c4a474e6789a131c451450dfab4d87ad2ec5019aed",
+        "variants\\incumbent\\coordination.py": "252898abe1b343ec18cee8abfc131e23ceea8ef827282489b31567b65dc50cdb",
+        "variants\\incumbent\\draft.py": "158ea5ed408877185e4dd50c4f995f41e4c714289b63d254ab2e9288e3cb49b8",
+        "variants\\incumbent\\objective_policy.py": "d2d35c10628378417494c1b0d61f9137e48ebce89c1540970604cfbd626a8e39",
+        "variants\\incumbent\\planner\\__init__.py": "8a524fdf4bfab7e5a26a83ae80bea68cfb6aea5099d92266aae5b9bc29736eee",
+        "variants\\incumbent\\planner\\ledger.py": "ea4794b4fe00ec2e021c613171a8d7ddbae275ac8b5d4e263d9caa92539b6b61",
+        "variants\\incumbent\\policy.py": "acdb681e2a9cae4086b3d2650bbf5ca191adc2ad88f461e2a47a03cb035ea3d2",
+        "variants\\incumbent\\randomness.py": "121ecc39a08470f0d64e65bec8c9a98bd1293c214f70100314fb26ca3ac00b81",
+        "variants\\packs\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "variants\\packs\\bot.py": "6ec6d942565172b30db5b40d567036a02896df1a9da56474ea844399c401010c",
+        "variants\\packs\\camp_tactics.py": "97f41455f565302a43d425430caacb66e590955c2294169731bd5fe7fa194891",
+        "variants\\packs\\combat.py": "60f6ae1e888974162413e9c4a474e6789a131c451450dfab4d87ad2ec5019aed",
+        "variants\\packs\\coordination.py": "252898abe1b343ec18cee8abfc131e23ceea8ef827282489b31567b65dc50cdb",
+        "variants\\packs\\draft.py": "158ea5ed408877185e4dd50c4f995f41e4c714289b63d254ab2e9288e3cb49b8",
+        "variants\\packs\\objective_policy.py": "d2d35c10628378417494c1b0d61f9137e48ebce89c1540970604cfbd626a8e39",
+        "variants\\packs\\planner\\__init__.py": "8a524fdf4bfab7e5a26a83ae80bea68cfb6aea5099d92266aae5b9bc29736eee",
+        "variants\\packs\\planner\\ledger.py": "12ea5994227108cd559b859634684b9edfafd70809444b388c23d12a52492a89",
+        "variants\\packs\\policy.py": "dfa784a742cb4e6e5a8b76b40c1efd6ef3cd7cde3071dea9097371254b3723c2",
+        "variants\\packs\\randomness.py": "121ecc39a08470f0d64e65bec8c9a98bd1293c214f70100314fb26ca3ac00b81"
+      },
+      "baseline": {
+        "bot.py": "0caffff81b4b518b77a011c9785571872a13d5f49e7c9bb24c5c0cc5f1e0159f",
+        "combat.py": "60f6ae1e888974162413e9c4a474e6789a131c451450dfab4d87ad2ec5019aed",
+        "coordination.py": "252898abe1b343ec18cee8abfc131e23ceea8ef827282489b31567b65dc50cdb",
+        "draft.py": "09f1ef00c3c7afa8fbd10548d4fb3a69efdfae069ce12dc8f799684f80d5dd9e",
+        "main.py": "a92f37f6792e1e0b2217d1c194c1eeb3598454390e26ead0ebc1fb499a796f28",
+        "objective_policy.py": "d2d35c10628378417494c1b0d61f9137e48ebce89c1540970604cfbd626a8e39",
+        "planner\\__init__.py": "8a524fdf4bfab7e5a26a83ae80bea68cfb6aea5099d92266aae5b9bc29736eee",
+        "planner\\ledger.py": "ea4794b4fe00ec2e021c613171a8d7ddbae275ac8b5d4e263d9caa92539b6b61",
+        "policy.py": "acdb681e2a9cae4086b3d2650bbf5ca191adc2ad88f461e2a47a03cb035ea3d2",
+        "randomness.py": "121ecc39a08470f0d64e65bec8c9a98bd1293c214f70100314fb26ca3ac00b81"
+      },
+      "sdk": "sdk_version = \"2.2.1\"\nlanguages = [\"cpp\",\"rust\",\"python\",\"ocaml\"]\n",
+      "maps": {
+        "ambush.map26a": "cd0e19ffcbaaea59137c3e2af47939ba920b80f86856948015b02fb70664fa3f",
+        "collision.map26a": "ebfcace19ebb3bca84d63856c5cb56285042057d751ff41dc011d8a2c8c085dc",
+        "contest.map26a": "c76debb1c6fde9bad53996f02dda7820b79b9729c7a4592a71a82b0518820f7f",
+        "corners.map26a": "ee68ccad568ca8ff6d87a77f2cbc9cf6ee54dc63c74fb306e5ac67d8c0556cc6",
+        "eight.map26a": "61fa921a44a474425cf8de649705fcd168e0784b3610840e1b4c43513a7c403b",
+        "elkring.map26a": "37b8ace8d2ae29b8d7dcedc7ce5107e9ef3c5d8868fb8d42e2e1293cdc04939e",
+        "expanse.map26a": "95a4e64280dfd13f8d00b58b2ea651335c1203a08df1ef6d53ded8ab990cdb90",
+        "fragment.map26a": "9696d12821252abe17668f012ad17d66eaaf6708b5abf39230463ae1eaaf603e",
+        "interlock.map26a": "c7ac699781ace7557a98f736bf57a719a7f0aa7c816b462419d193d2e6e5b5f4",
+        "lanes.map26a": "bf50fd858a0f4d89a86b90228e77df6ee16bcaf05c627ba4d79460eab904f184",
+        "monolith.map26a": "61bcbc25b93c80091ab59ebfd8a087847880f54cb0dfaa2c39e2fe0ef3cedb2e",
+        "packs.map26a": "116b2c569baf13bb06a75699c809e239fbb14202a03dc8d8d15a2146be6e2416",
+        "pilgrimage.map26a": "13843d1e38afd731a5e8a0ef0c05a5af08a00101e24475dfda56bb07d8a33e81",
+        "rows.map26a": "50365c961d1f85234220239211a5b526e70522f30c145160a46c0ea6e1cf757a",
+        "rushbait-v2.map26a": "c84673dd8ca2d199f2c5c0f2c6e3d39909d7429fb1da09b9a1c66a7d635a1733",
+        "stampede.map26a": "43362dd0d8b404f291d4e5ea701ba782269ab74debbd2a976ad6d0d05e2f10e3",
+        "swirl.map26a": "988f7804a0f3e3fa4394ff66cac222dc957886d15ba9fcec9f3023a0ecb09360"
+      }
+    },
+    "results": [
+      {
+        "map": "ambush",
+        "side": 0,
+        "win": true,
+        "score": [
+          1008,
+          0
+        ],
+        "rounds": 1177,
+        "deaths": [
+          0,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              320,
+              0
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              72,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              320,
+              0
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              72,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              640,
+              0
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              144,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              960,
+              0
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              216,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              960,
+              0
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              216,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              1280,
+              0
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              288,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              1600,
+              0
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              288,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              1600,
+              0
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              360,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              1920,
+              0
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              432,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              2240,
+              0
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              432,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              2240,
+              0
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              504,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              2560,
+              0
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              576,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2560,
+              0
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              576,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              2880,
+              0
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              648,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              3200,
+              0
+            ]
+          },
+          {
+            "r": 900,
+            "sub": [
+              720,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3200,
+              0
+            ]
+          },
+          {
+            "r": 950,
+            "sub": [
+              720,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              3520,
+              0
+            ]
+          },
+          {
+            "r": 1000,
+            "sub": [
+              792,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              3840,
+              0
+            ]
+          },
+          {
+            "r": 1050,
+            "sub": [
+              864,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3840,
+              0
+            ]
+          },
+          {
+            "r": 1100,
+            "sub": [
+              936,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4160,
+              0
+            ]
+          },
+          {
+            "r": 1150,
+            "sub": [
+              936,
+              0
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              4480,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "map": "ambush",
+        "side": 1,
+        "win": true,
+        "score": [
+          1102,
+          0
+        ],
+        "rounds": 787,
+        "deaths": [
+          1,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              72
+            ],
+            "earned": [
+              0,
+              320
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              0,
+              72
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              320
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              0,
+              72
+            ],
+            "carried": [
+              0,
+              106
+            ],
+            "earned": [
+              0,
+              570
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              0,
+              178
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              570
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              0,
+              178
+            ],
+            "carried": [
+              0,
+              178
+            ],
+            "earned": [
+              0,
+              1140
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              0,
+              356
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              1140
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              0,
+              356
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              1140
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              0,
+              356
+            ],
+            "carried": [
+              0,
+              178
+            ],
+            "earned": [
+              0,
+              1710
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              0,
+              534
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              1710
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              0,
+              534
+            ],
+            "carried": [
+              0,
+              178
+            ],
+            "earned": [
+              0,
+              2280
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              0,
+              712
+            ],
+            "carried": [
+              0,
+              106
+            ],
+            "earned": [
+              0,
+              2530
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              0,
+              818
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              2530
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              0,
+              818
+            ],
+            "carried": [
+              0,
+              178
+            ],
+            "earned": [
+              0,
+              3100
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              0,
+              996
+            ],
+            "carried": [
+              0,
+              106
+            ],
+            "earned": [
+              0,
+              3350
+            ]
+          }
+        ]
+      },
+      {
+        "map": "collision",
+        "side": 0,
+        "win": false,
+        "score": [
+          846,
+          1144
+        ],
+        "rounds": 1070,
+        "deaths": [
+          7,
+          11
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              58,
+              58
+            ],
+            "earned": [
+              250,
+              250
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              80
+            ],
+            "carried": [
+              102,
+              22
+            ],
+            "earned": [
+              430,
+              430
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              146,
+              80
+            ],
+            "carried": [
+              0,
+              66
+            ],
+            "earned": [
+              610,
+              610
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              168,
+              146
+            ],
+            "carried": [
+              44,
+              58
+            ],
+            "earned": [
+              880,
+              860
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              168,
+              204
+            ],
+            "carried": [
+              124,
+              66
+            ],
+            "earned": [
+              1220,
+              1130
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              278,
+              226
+            ],
+            "carried": [
+              36,
+              88
+            ],
+            "earned": [
+              1310,
+              1310
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              278,
+              350
+            ],
+            "carried": [
+              80,
+              22
+            ],
+            "earned": [
+              1490,
+              1560
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              358,
+              350
+            ],
+            "carried": [
+              80,
+              102
+            ],
+            "earned": [
+              1830,
+              1900
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              358,
+              350
+            ],
+            "carried": [
+              240,
+              66
+            ],
+            "earned": [
+              2220,
+              2080
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              518,
+              350
+            ],
+            "carried": [
+              102,
+              88
+            ],
+            "earned": [
+              2310,
+              2170
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              540,
+              394
+            ],
+            "carried": [
+              124,
+              88
+            ],
+            "earned": [
+              2490,
+              2350
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              540,
+              482
+            ],
+            "carried": [
+              204,
+              80
+            ],
+            "earned": [
+              2830,
+              2690
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              686,
+              482
+            ],
+            "carried": [
+              248,
+              22
+            ],
+            "earned": [
+              3200,
+              2960
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              708,
+              540
+            ],
+            "carried": [
+              320,
+              36
+            ],
+            "earned": [
+              3660,
+              3280
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              766,
+              540
+            ],
+            "carried": [
+              80,
+              328
+            ],
+            "earned": [
+              3840,
+              3600
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              846,
+              562
+            ],
+            "carried": [
+              80,
+              364
+            ],
+            "earned": [
+              4180,
+              3850
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              846,
+              620
+            ],
+            "carried": [
+              386,
+              80
+            ],
+            "earned": [
+              4410,
+              4010
+            ]
+          },
+          {
+            "r": 900,
+            "sub": [
+              846,
+              620
+            ],
+            "carried": [
+              72,
+              524
+            ],
+            "earned": [
+              4780,
+              4360
+            ]
+          },
+          {
+            "r": 950,
+            "sub": [
+              846,
+              620
+            ],
+            "carried": [
+              94,
+              560
+            ],
+            "earned": [
+              4870,
+              4520
+            ]
+          },
+          {
+            "r": 1000,
+            "sub": [
+              846,
+              656
+            ],
+            "carried": [
+              152,
+              662
+            ],
+            "earned": [
+              5370,
+              4910
+            ]
+          },
+          {
+            "r": 1050,
+            "sub": [
+              846,
+              656
+            ],
+            "carried": [
+              72,
+              742
+            ],
+            "earned": [
+              5420,
+              4960
+            ]
+          }
+        ]
+      },
+      {
+        "map": "collision",
+        "side": 1,
+        "win": true,
+        "score": [
+          1006,
+          328
+        ],
+        "rounds": 674,
+        "deaths": [
+          4,
+          10
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              58,
+              58
+            ],
+            "earned": [
+              250,
+              250
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              22,
+              58
+            ],
+            "carried": [
+              58,
+              36
+            ],
+            "earned": [
+              340,
+              410
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              58,
+              80
+            ],
+            "carried": [
+              44,
+              58
+            ],
+            "earned": [
+              430,
+              590
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              80,
+              182
+            ],
+            "carried": [
+              66,
+              22
+            ],
+            "earned": [
+              610,
+              860
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              80,
+              204
+            ],
+            "carried": [
+              22,
+              160
+            ],
+            "earned": [
+              820,
+              1300
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              102,
+              364
+            ],
+            "carried": [
+              0,
+              58
+            ],
+            "earned": [
+              980,
+              1440
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              146,
+              444
+            ],
+            "carried": [
+              44,
+              0
+            ],
+            "earned": [
+              1300,
+              1620
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              190,
+              502
+            ],
+            "carried": [
+              44,
+              0
+            ],
+            "earned": [
+              1480,
+              1870
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              270,
+              502
+            ],
+            "carried": [
+              22,
+              124
+            ],
+            "earned": [
+              1820,
+              2350
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              270,
+              670
+            ],
+            "carried": [
+              36,
+              66
+            ],
+            "earned": [
+              2070,
+              2670
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              328,
+              714
+            ],
+            "carried": [
+              44,
+              102
+            ],
+            "earned": [
+              2300,
+              3100
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              328,
+              758
+            ],
+            "carried": [
+              124,
+              138
+            ],
+            "earned": [
+              2640,
+              3440
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              328,
+              824
+            ],
+            "carried": [
+              80,
+              138
+            ],
+            "earned": [
+              2640,
+              3580
+            ]
+          }
+        ]
+      },
+      {
+        "map": "contest",
+        "side": 0,
+        "win": false,
+        "score": [
+          600,
+          1000
+        ],
+        "rounds": 1915,
+        "deaths": [
+          38,
+          44
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              315,
+              315
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              485,
+              435
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              760,
+              540
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              970,
+              750
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1180,
+              960
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1460,
+              1205
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1635,
+              1415
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1880,
+              1605
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2090,
+              1815
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2490,
+              1990
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2610,
+              2180
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2820,
+              2440
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3185,
+              2720
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3550,
+              2980
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3655,
+              3190
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3760,
+              3625
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              200
+            ],
+            "earned": [
+              4285,
+              3795
+            ]
+          },
+          {
+            "r": 900,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              200
+            ],
+            "earned": [
+              4425,
+              4140
+            ]
+          },
+          {
+            "r": 950,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              200,
+              0
+            ],
+            "earned": [
+              4735,
+              4350
+            ]
+          },
+          {
+            "r": 1000,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              400
+            ],
+            "earned": [
+              4925,
+              4785
+            ]
+          },
+          {
+            "r": 1050,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              400
+            ],
+            "earned": [
+              5115,
+              5095
+            ]
+          },
+          {
+            "r": 1100,
+            "sub": [
+              0,
+              400
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5410,
+              5390
+            ]
+          },
+          {
+            "r": 1150,
+            "sub": [
+              0,
+              400
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5650,
+              5525
+            ]
+          },
+          {
+            "r": 1200,
+            "sub": [
+              0,
+              400
+            ],
+            "carried": [
+              200,
+              0
+            ],
+            "earned": [
+              6295,
+              5630
+            ]
+          },
+          {
+            "r": 1250,
+            "sub": [
+              0,
+              400
+            ],
+            "carried": [
+              200,
+              0
+            ],
+            "earned": [
+              6570,
+              5680
+            ]
+          },
+          {
+            "r": 1300,
+            "sub": [
+              200,
+              400
+            ],
+            "carried": [
+              0,
+              200
+            ],
+            "earned": [
+              6745,
+              6240
+            ]
+          },
+          {
+            "r": 1350,
+            "sub": [
+              200,
+              400
+            ],
+            "carried": [
+              0,
+              200
+            ],
+            "earned": [
+              6920,
+              6535
+            ]
+          },
+          {
+            "r": 1400,
+            "sub": [
+              200,
+              600
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              7060,
+              6985
+            ]
+          },
+          {
+            "r": 1450,
+            "sub": [
+              200,
+              600
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              7250,
+              7280
+            ]
+          },
+          {
+            "r": 1500,
+            "sub": [
+              200,
+              600
+            ],
+            "carried": [
+              200,
+              0
+            ],
+            "earned": [
+              8030,
+              7385
+            ]
+          },
+          {
+            "r": 1550,
+            "sub": [
+              400,
+              600
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              8345,
+              7455
+            ]
+          },
+          {
+            "r": 1600,
+            "sub": [
+              400,
+              600
+            ],
+            "carried": [
+              0,
+              200
+            ],
+            "earned": [
+              8535,
+              8015
+            ]
+          },
+          {
+            "r": 1650,
+            "sub": [
+              400,
+              600
+            ],
+            "carried": [
+              0,
+              200
+            ],
+            "earned": [
+              8745,
+              8400
+            ]
+          },
+          {
+            "r": 1700,
+            "sub": [
+              400,
+              800
+            ],
+            "carried": [
+              200,
+              0
+            ],
+            "earned": [
+              9335,
+              8555
+            ]
+          },
+          {
+            "r": 1750,
+            "sub": [
+              600,
+              800
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              9595,
+              8605
+            ]
+          },
+          {
+            "r": 1800,
+            "sub": [
+              600,
+              800
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              9890,
+              8710
+            ]
+          },
+          {
+            "r": 1850,
+            "sub": [
+              600,
+              800
+            ],
+            "carried": [
+              0,
+              200
+            ],
+            "earned": [
+              10270,
+              9270
+            ]
+          },
+          {
+            "r": 1900,
+            "sub": [
+              600,
+              800
+            ],
+            "carried": [
+              0,
+              400
+            ],
+            "earned": [
+              10830,
+              9425
+            ]
+          }
+        ]
+      },
+      {
+        "map": "contest",
+        "side": 1,
+        "win": true,
+        "score": [
+          1000,
+          0
+        ],
+        "rounds": 1266,
+        "deaths": [
+          24,
+          22
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              315,
+              315
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              435,
+              385
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              750,
+              700
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              855,
+              1015
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1170,
+              1225
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1275,
+              1485
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1500,
+              1730
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1780,
+              1920
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1950,
+              2130
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2230,
+              2410
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2610,
+              2790
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2715,
+              2930
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2940,
+              3155
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3150,
+              3400
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              400
+            ],
+            "earned": [
+              3830,
+              3905
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              400
+            ],
+            "earned": [
+              3935,
+              4060
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              0,
+              400
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4075,
+              4340
+            ]
+          },
+          {
+            "r": 900,
+            "sub": [
+              0,
+              400
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4370,
+              4550
+            ]
+          },
+          {
+            "r": 950,
+            "sub": [
+              0,
+              400
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4650,
+              4690
+            ]
+          },
+          {
+            "r": 1000,
+            "sub": [
+              0,
+              400
+            ],
+            "carried": [
+              0,
+              400
+            ],
+            "earned": [
+              5240,
+              5145
+            ]
+          },
+          {
+            "r": 1050,
+            "sub": [
+              0,
+              800
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5345,
+              5490
+            ]
+          },
+          {
+            "r": 1100,
+            "sub": [
+              0,
+              800
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5535,
+              5575
+            ]
+          },
+          {
+            "r": 1150,
+            "sub": [
+              0,
+              800
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5725,
+              5920
+            ]
+          },
+          {
+            "r": 1200,
+            "sub": [
+              0,
+              800
+            ],
+            "carried": [
+              200,
+              0
+            ],
+            "earned": [
+              6285,
+              6200
+            ]
+          },
+          {
+            "r": 1250,
+            "sub": [
+              0,
+              800
+            ],
+            "carried": [
+              0,
+              400
+            ],
+            "earned": [
+              6510,
+              6600
+            ]
+          }
+        ]
+      },
+      {
+        "map": "corners",
+        "side": 0,
+        "win": false,
+        "score": [
+          716,
+          1016
+        ],
+        "rounds": 653,
+        "deaths": [
+          3,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              58,
+              22
+            ],
+            "earned": [
+              250,
+              90
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              22
+            ],
+            "carried": [
+              0,
+              80
+            ],
+            "earned": [
+              250,
+              230
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              118,
+              182
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              660,
+              660
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              118,
+              284
+            ],
+            "carried": [
+              58,
+              36
+            ],
+            "earned": [
+              910,
+              1160
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              212,
+              342
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              1160,
+              1340
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              234,
+              422
+            ],
+            "carried": [
+              88,
+              22
+            ],
+            "earned": [
+              1520,
+              1680
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              322,
+              516
+            ],
+            "carried": [
+              80,
+              22
+            ],
+            "earned": [
+              1860,
+              2090
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              380,
+              654
+            ],
+            "carried": [
+              102,
+              22
+            ],
+            "earned": [
+              2200,
+              2680
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              416,
+              690
+            ],
+            "carried": [
+              110,
+              80
+            ],
+            "earned": [
+              2380,
+              3090
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              460,
+              820
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              2630,
+              3410
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              576,
+              864
+            ],
+            "carried": [
+              44,
+              58
+            ],
+            "earned": [
+              3130,
+              3750
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              598,
+              900
+            ],
+            "carried": [
+              44,
+              94
+            ],
+            "earned": [
+              3220,
+              4070
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              716,
+              980
+            ],
+            "carried": [
+              130,
+              226
+            ],
+            "earned": [
+              4020,
+              4890
+            ]
+          }
+        ]
+      },
+      {
+        "map": "corners",
+        "side": 1,
+        "win": true,
+        "score": [
+          1032,
+          708
+        ],
+        "rounds": 598,
+        "deaths": [
+          1,
+          5
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              90,
+              90
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              22,
+              44
+            ],
+            "carried": [
+              154,
+              22
+            ],
+            "earned": [
+              660,
+              270
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              80,
+              162
+            ],
+            "carried": [
+              132,
+              36
+            ],
+            "earned": [
+              870,
+              750
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              138,
+              184
+            ],
+            "carried": [
+              132,
+              58
+            ],
+            "earned": [
+              1120,
+              980
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              270,
+              300
+            ],
+            "carried": [
+              58,
+              0
+            ],
+            "earned": [
+              1370,
+              1230
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              314,
+              394
+            ],
+            "carried": [
+              58,
+              36
+            ],
+            "earned": [
+              1800,
+              1600
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              336,
+              510
+            ],
+            "carried": [
+              58,
+              58
+            ],
+            "earned": [
+              2140,
+              1990
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              380,
+              510
+            ],
+            "carried": [
+              58,
+              152
+            ],
+            "earned": [
+              2410,
+              2360
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              460,
+              706
+            ],
+            "carried": [
+              58,
+              36
+            ],
+            "earned": [
+              2750,
+              2700
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              496,
+              786
+            ],
+            "carried": [
+              44,
+              72
+            ],
+            "earned": [
+              2840,
+              3200
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              614,
+              866
+            ],
+            "carried": [
+              94,
+              108
+            ],
+            "earned": [
+              3480,
+              3700
+            ]
+          }
+        ]
+      },
+      {
+        "map": "eight",
+        "side": 0,
+        "win": false,
+        "score": [
+          282,
+          1008
+        ],
+        "rounds": 932,
+        "deaths": [
+          23,
+          18
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              90,
+              90
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              66
+            ],
+            "carried": [
+              22,
+              44
+            ],
+            "earned": [
+              270,
+              320
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              22,
+              132
+            ],
+            "carried": [
+              94,
+              72
+            ],
+            "earned": [
+              680,
+              730
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              22,
+              204
+            ],
+            "carried": [
+              94,
+              132
+            ],
+            "earned": [
+              770,
+              1230
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              22,
+              248
+            ],
+            "carried": [
+              94,
+              182
+            ],
+            "earned": [
+              860,
+              1600
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              44,
+              452
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              860,
+              1690
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              116,
+              496
+            ],
+            "carried": [
+              94,
+              94
+            ],
+            "earned": [
+              1270,
+              2280
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              116,
+              496
+            ],
+            "carried": [
+              138,
+              116
+            ],
+            "earned": [
+              1590,
+              2330
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              116,
+              496
+            ],
+            "carried": [
+              138,
+              182
+            ],
+            "earned": [
+              1640,
+              2650
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              116,
+              562
+            ],
+            "carried": [
+              138,
+              204
+            ],
+            "earned": [
+              1730,
+              2970
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              116,
+              562
+            ],
+            "carried": [
+              22,
+              530
+            ],
+            "earned": [
+              2190,
+              3620
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              116,
+              700
+            ],
+            "carried": [
+              0,
+              480
+            ],
+            "earned": [
+              2370,
+              3760
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              116,
+              766
+            ],
+            "carried": [
+              0,
+              706
+            ],
+            "earned": [
+              2780,
+              4595
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              116,
+              920
+            ],
+            "carried": [
+              22,
+              618
+            ],
+            "earned": [
+              3100,
+              4735
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              116,
+              964
+            ],
+            "carried": [
+              94,
+              734
+            ],
+            "earned": [
+              3560,
+              5375
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              116,
+              986
+            ],
+            "carried": [
+              778,
+              72
+            ],
+            "earned": [
+              3790,
+              5425
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              138,
+              986
+            ],
+            "carried": [
+              922,
+              94
+            ],
+            "earned": [
+              4250,
+              5835
+            ]
+          },
+          {
+            "r": 900,
+            "sub": [
+              282,
+              986
+            ],
+            "carried": [
+              22,
+              938
+            ],
+            "earned": [
+              4390,
+              6155
+            ]
+          }
+        ]
+      },
+      {
+        "map": "eight",
+        "side": 1,
+        "win": true,
+        "score": [
+          1048,
+          110
+        ],
+        "rounds": 577,
+        "deaths": [
+          9,
+          16
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              90,
+              90
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              66
+            ],
+            "carried": [
+              22,
+              44
+            ],
+            "earned": [
+              270,
+              320
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              22,
+              132
+            ],
+            "carried": [
+              94,
+              72
+            ],
+            "earned": [
+              680,
+              730
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              22,
+              204
+            ],
+            "carried": [
+              94,
+              132
+            ],
+            "earned": [
+              770,
+              1230
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              22,
+              292
+            ],
+            "carried": [
+              0,
+              210
+            ],
+            "earned": [
+              770,
+              1650
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              22,
+              524
+            ],
+            "carried": [
+              66,
+              44
+            ],
+            "earned": [
+              1040,
+              1920
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              22,
+              590
+            ],
+            "carried": [
+              66,
+              44
+            ],
+            "earned": [
+              1090,
+              2190
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              110,
+              634
+            ],
+            "carried": [
+              72,
+              72
+            ],
+            "earned": [
+              1500,
+              2510
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              110,
+              656
+            ],
+            "carried": [
+              22,
+              232
+            ],
+            "earned": [
+              1640,
+              3010
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              110,
+              910
+            ],
+            "carried": [
+              44,
+              44
+            ],
+            "earned": [
+              1730,
+              3280
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              110,
+              954
+            ],
+            "carried": [
+              154,
+              210
+            ],
+            "earned": [
+              2565,
+              3830
+            ]
+          }
+        ]
+      },
+      {
+        "map": "elkring",
+        "side": 0,
+        "win": false,
+        "score": [
+          756,
+          1008
+        ],
+        "rounds": 600,
+        "deaths": [
+          7,
+          6
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              72,
+              108
+            ],
+            "earned": [
+              390,
+              585
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              72,
+              108
+            ],
+            "carried": [
+              72,
+              36
+            ],
+            "earned": [
+              780,
+              780
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              108,
+              108
+            ],
+            "carried": [
+              144,
+              144
+            ],
+            "earned": [
+              1365,
+              1365
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              108,
+              288
+            ],
+            "carried": [
+              108,
+              144
+            ],
+            "earned": [
+              1755,
+              1805
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              252,
+              288
+            ],
+            "carried": [
+              108,
+              144
+            ],
+            "earned": [
+              2000,
+              2390
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              288,
+              576
+            ],
+            "carried": [
+              72,
+              36
+            ],
+            "earned": [
+              2585,
+              2880
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              360,
+              720
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              2975,
+              3515
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              360,
+              792
+            ],
+            "carried": [
+              180,
+              36
+            ],
+            "earned": [
+              3610,
+              4100
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              468,
+              864
+            ],
+            "carried": [
+              72,
+              36
+            ],
+            "earned": [
+              3610,
+              4490
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              504,
+              900
+            ],
+            "carried": [
+              144,
+              144
+            ],
+            "earned": [
+              4195,
+              5270
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              648,
+              900
+            ],
+            "carried": [
+              36,
+              216
+            ],
+            "earned": [
+              4390,
+              5660
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              756,
+              972
+            ],
+            "carried": [
+              108,
+              72
+            ],
+            "earned": [
+              4735,
+              6100
+            ]
+          }
+        ]
+      },
+      {
+        "map": "elkring",
+        "side": 1,
+        "win": true,
+        "score": [
+          1008,
+          576
+        ],
+        "rounds": 513,
+        "deaths": [
+          1,
+          5
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              72,
+              108
+            ],
+            "earned": [
+              390,
+              585
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              72,
+              108
+            ],
+            "carried": [
+              72,
+              36
+            ],
+            "earned": [
+              780,
+              780
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              108,
+              108
+            ],
+            "carried": [
+              144,
+              144
+            ],
+            "earned": [
+              1365,
+              1365
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              108,
+              288
+            ],
+            "carried": [
+              108,
+              144
+            ],
+            "earned": [
+              1755,
+              1805
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              252,
+              288
+            ],
+            "carried": [
+              108,
+              144
+            ],
+            "earned": [
+              2000,
+              2390
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              288,
+              576
+            ],
+            "carried": [
+              72,
+              36
+            ],
+            "earned": [
+              2585,
+              2880
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              360,
+              684
+            ],
+            "carried": [
+              72,
+              72
+            ],
+            "earned": [
+              3170,
+              3515
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              360,
+              792
+            ],
+            "carried": [
+              144,
+              72
+            ],
+            "earned": [
+              3560,
+              4100
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              432,
+              900
+            ],
+            "carried": [
+              180,
+              72
+            ],
+            "earned": [
+              4145,
+              4685
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              504,
+              972
+            ],
+            "carried": [
+              144,
+              108
+            ],
+            "earned": [
+              4340,
+              5270
+            ]
+          }
+        ]
+      },
+      {
+        "map": "expanse",
+        "side": 0,
+        "win": true,
+        "score": [
+          1002,
+          950
+        ],
+        "rounds": 701,
+        "deaths": [
+          0,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              22,
+              0
+            ],
+            "carried": [
+              22,
+              58
+            ],
+            "earned": [
+              180,
+              250
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              66,
+              58
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              360,
+              250
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              110,
+              124
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              450,
+              610
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              154,
+              190
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              720,
+              790
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              212,
+              234
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              970,
+              970
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              256,
+              322
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              1060,
+              1420
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              366,
+              402
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1510,
+              1670
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              410,
+              490
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              1870,
+              2120
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              498,
+              556
+            ],
+            "carried": [
+              0,
+              58
+            ],
+            "earned": [
+              2050,
+              2550
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              622,
+              658
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2570,
+              2730
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              710,
+              680
+            ],
+            "carried": [
+              36,
+              58
+            ],
+            "earned": [
+              3090,
+              3070
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              790,
+              760
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              3450,
+              3250
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              892,
+              848
+            ],
+            "carried": [
+              22,
+              36
+            ],
+            "earned": [
+              3790,
+              3680
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              980,
+              950
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              4240,
+              4040
+            ]
+          }
+        ]
+      },
+      {
+        "map": "expanse",
+        "side": 1,
+        "win": true,
+        "score": [
+          1022,
+          824
+        ],
+        "rounds": 755,
+        "deaths": [
+          0,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              22
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              90,
+              180
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              58,
+              66
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              250,
+              360
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              80,
+              110
+            ],
+            "carried": [
+              36,
+              0
+            ],
+            "earned": [
+              500,
+              450
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              138,
+              146
+            ],
+            "carried": [
+              22,
+              44
+            ],
+            "earned": [
+              680,
+              790
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              182,
+              212
+            ],
+            "carried": [
+              0,
+              44
+            ],
+            "earned": [
+              770,
+              1060
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              240,
+              292
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1020,
+              1220
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              328,
+              336
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              1380,
+              1490
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              350,
+              438
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              1560,
+              1920
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              430,
+              482
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              1810,
+              2100
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              430,
+              562
+            ],
+            "carried": [
+              22,
+              44
+            ],
+            "earned": [
+              1900,
+              2530
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              554,
+              650
+            ],
+            "carried": [
+              0,
+              36
+            ],
+            "earned": [
+              2330,
+              2870
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              598,
+              730
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              2510,
+              3140
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              656,
+              774
+            ],
+            "carried": [
+              44,
+              58
+            ],
+            "earned": [
+              2940,
+              3480
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              722,
+              898
+            ],
+            "carried": [
+              58,
+              0
+            ],
+            "earned": [
+              3280,
+              3750
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              802,
+              978
+            ],
+            "carried": [
+              44,
+              44
+            ],
+            "earned": [
+              3550,
+              4270
+            ]
+          }
+        ]
+      },
+      {
+        "map": "fragment",
+        "side": 0,
+        "win": true,
+        "score": [
+          1056,
+          402
+        ],
+        "rounds": 692,
+        "deaths": [
+          2,
+          11
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              250,
+              125
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              44,
+              102
+            ],
+            "carried": [
+              80,
+              0
+            ],
+            "earned": [
+              625,
+              500
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              146,
+              124
+            ],
+            "carried": [
+              58,
+              0
+            ],
+            "earned": [
+              1000,
+              625
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              226,
+              124
+            ],
+            "carried": [
+              58,
+              44
+            ],
+            "earned": [
+              1375,
+              875
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              306,
+              190
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              1675,
+              1000
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              386,
+              212
+            ],
+            "carried": [
+              58,
+              0
+            ],
+            "earned": [
+              2175,
+              1125
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              430,
+              234
+            ],
+            "carried": [
+              0,
+              58
+            ],
+            "earned": [
+              2475,
+              1300
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              488,
+              256
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2525,
+              1475
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              604,
+              278
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              3275,
+              1725
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              670,
+              300
+            ],
+            "carried": [
+              116,
+              0
+            ],
+            "earned": [
+              3875,
+              1850
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              808,
+              300
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              4125,
+              1975
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              888,
+              300
+            ],
+            "carried": [
+              22,
+              80
+            ],
+            "earned": [
+              4425,
+              2350
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              954,
+              380
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              4725,
+              2475
+            ]
+          }
+        ]
+      },
+      {
+        "map": "fragment",
+        "side": 1,
+        "win": true,
+        "score": [
+          1005,
+          767
+        ],
+        "rounds": 874,
+        "deaths": [
+          15,
+          14
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              80,
+              44
+            ],
+            "earned": [
+              375,
+              250
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              44,
+              102
+            ],
+            "carried": [
+              58,
+              22
+            ],
+            "earned": [
+              500,
+              625
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              44,
+              204
+            ],
+            "carried": [
+              44,
+              0
+            ],
+            "earned": [
+              750,
+              800
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              88,
+              226
+            ],
+            "carried": [
+              0,
+              58
+            ],
+            "earned": [
+              750,
+              1175
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              168,
+              226
+            ],
+            "carried": [
+              102,
+              22
+            ],
+            "earned": [
+              1350,
+              1425
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              190,
+              328
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              1475,
+              1475
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              292,
+              350
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              1700,
+              1975
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              394,
+              350
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              2200,
+              1975
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              416,
+              452
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              2375,
+              2475
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              460,
+              452
+            ],
+            "carried": [
+              0,
+              58
+            ],
+            "earned": [
+              2500,
+              2775
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              460,
+              583
+            ],
+            "carried": [
+              44,
+              29
+            ],
+            "earned": [
+              2750,
+              3325
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              533,
+              641
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              2800,
+              3700
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              577,
+              721
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              3100,
+              4125
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              679,
+              765
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3650,
+              4250
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              679,
+              765
+            ],
+            "carried": [
+              22,
+              80
+            ],
+            "earned": [
+              3775,
+              4725
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              701,
+              845
+            ],
+            "carried": [
+              22,
+              58
+            ],
+            "earned": [
+              3825,
+              5150
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              767,
+              961
+            ],
+            "carried": [
+              0,
+              44
+            ],
+            "earned": [
+              4075,
+              5650
+            ]
+          }
+        ]
+      },
+      {
+        "map": "interlock",
+        "side": 0,
+        "win": false,
+        "score": [
+          738,
+          1068
+        ],
+        "rounds": 795,
+        "deaths": [
+          10,
+          5
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              90,
+              90
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              66
+            ],
+            "carried": [
+              66,
+              0
+            ],
+            "earned": [
+              270,
+              270
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              44,
+              110
+            ],
+            "carried": [
+              66,
+              22
+            ],
+            "earned": [
+              450,
+              540
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              110,
+              176
+            ],
+            "carried": [
+              66,
+              72
+            ],
+            "earned": [
+              770,
+              1040
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              198,
+              270
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              950,
+              1220
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              220,
+              336
+            ],
+            "carried": [
+              66,
+              22
+            ],
+            "earned": [
+              1220,
+              1490
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              264,
+              402
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              1400,
+              1770
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              308,
+              446
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              1490,
+              1950
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              352,
+              490
+            ],
+            "carried": [
+              44,
+              44
+            ],
+            "earned": [
+              1760,
+              2220
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              352,
+              556
+            ],
+            "carried": [
+              110,
+              44
+            ],
+            "earned": [
+              2030,
+              2490
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              468,
+              688
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              2400,
+              2770
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              468,
+              754
+            ],
+            "carried": [
+              66,
+              0
+            ],
+            "earned": [
+              2670,
+              2950
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              584,
+              820
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              3170,
+              3270
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              606,
+              886
+            ],
+            "carried": [
+              88,
+              0
+            ],
+            "earned": [
+              3490,
+              3500
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              716,
+              952
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              3670,
+              3770
+            ]
+          }
+        ]
+      },
+      {
+        "map": "interlock",
+        "side": 1,
+        "win": true,
+        "score": [
+          1018,
+          738
+        ],
+        "rounds": 802,
+        "deaths": [
+          5,
+          10
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              90,
+              90
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              66
+            ],
+            "carried": [
+              66,
+              0
+            ],
+            "earned": [
+              270,
+              270
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              44,
+              110
+            ],
+            "carried": [
+              66,
+              22
+            ],
+            "earned": [
+              450,
+              540
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              110,
+              176
+            ],
+            "carried": [
+              66,
+              72
+            ],
+            "earned": [
+              770,
+              1040
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              198,
+              270
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              950,
+              1220
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              220,
+              336
+            ],
+            "carried": [
+              66,
+              22
+            ],
+            "earned": [
+              1220,
+              1490
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              264,
+              402
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              1400,
+              1770
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              308,
+              446
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              1490,
+              1950
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              352,
+              490
+            ],
+            "carried": [
+              44,
+              44
+            ],
+            "earned": [
+              1760,
+              2220
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              352,
+              556
+            ],
+            "carried": [
+              110,
+              44
+            ],
+            "earned": [
+              2030,
+              2490
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              468,
+              688
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              2400,
+              2770
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              468,
+              754
+            ],
+            "carried": [
+              66,
+              0
+            ],
+            "earned": [
+              2670,
+              2950
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              584,
+              820
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              3170,
+              3270
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              606,
+              886
+            ],
+            "carried": [
+              88,
+              0
+            ],
+            "earned": [
+              3490,
+              3500
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              716,
+              952
+            ],
+            "carried": [
+              22,
+              0
+            ],
+            "earned": [
+              3670,
+              3770
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              738,
+              974
+            ],
+            "carried": [
+              22,
+              44
+            ],
+            "earned": [
+              3760,
+              4090
+            ]
+          }
+        ]
+      },
+      {
+        "map": "lanes",
+        "side": 0,
+        "win": true,
+        "score": [
+          1016,
+          884
+        ],
+        "rounds": 504,
+        "deaths": [
+          0,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              66,
+              88
+            ],
+            "carried": [
+              36,
+              0
+            ],
+            "earned": [
+              430,
+              360
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              212,
+              190
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              880,
+              790
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              292,
+              256
+            ],
+            "carried": [
+              22,
+              58
+            ],
+            "earned": [
+              1310,
+              1310
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              424,
+              358
+            ],
+            "carried": [
+              0,
+              44
+            ],
+            "earned": [
+              1760,
+              1670
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              526,
+              468
+            ],
+            "carried": [
+              0,
+              58
+            ],
+            "earned": [
+              2190,
+              2190
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              614,
+              606
+            ],
+            "carried": [
+              80,
+              0
+            ],
+            "earned": [
+              2890,
+              2530
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              804,
+              650
+            ],
+            "carried": [
+              22,
+              44
+            ],
+            "earned": [
+              3430,
+              2890
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              870,
+              774
+            ],
+            "carried": [
+              44,
+              0
+            ],
+            "earned": [
+              3790,
+              3230
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              994,
+              884
+            ],
+            "carried": [
+              80,
+              22
+            ],
+            "earned": [
+              4470,
+              3770
+            ]
+          }
+        ]
+      },
+      {
+        "map": "lanes",
+        "side": 1,
+        "win": false,
+        "score": [
+          986,
+          1016
+        ],
+        "rounds": 500,
+        "deaths": [
+          0,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              66,
+              88
+            ],
+            "carried": [
+              36,
+              0
+            ],
+            "earned": [
+              430,
+              360
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              212,
+              190
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              880,
+              790
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              292,
+              234
+            ],
+            "carried": [
+              22,
+              66
+            ],
+            "earned": [
+              1310,
+              1240
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              424,
+              344
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1760,
+              1420
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              556,
+              490
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2300,
+              2030
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              622,
+              578
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              2570,
+              2480
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              746,
+              644
+            ],
+            "carried": [
+              22,
+              94
+            ],
+            "earned": [
+              3180,
+              3070
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              856,
+              848
+            ],
+            "carried": [
+              80,
+              0
+            ],
+            "earned": [
+              3880,
+              3520
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              994,
+              986
+            ],
+            "carried": [
+              44,
+              0
+            ],
+            "earned": [
+              4310,
+              4110
+            ]
+          }
+        ]
+      },
+      {
+        "map": "monolith",
+        "side": 0,
+        "win": true,
+        "score": [
+          1038,
+          550
+        ],
+        "rounds": 454,
+        "deaths": [
+          0,
+          2
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              44,
+              110
+            ],
+            "earned": [
+              180,
+              450
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              102,
+              88
+            ],
+            "carried": [
+              66,
+              44
+            ],
+            "earned": [
+              700,
+              540
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              168,
+              154
+            ],
+            "carried": [
+              66,
+              66
+            ],
+            "earned": [
+              970,
+              900
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              322,
+              198
+            ],
+            "carried": [
+              44,
+              44
+            ],
+            "earned": [
+              1510,
+              990
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              402,
+              242
+            ],
+            "carried": [
+              44,
+              66
+            ],
+            "earned": [
+              1900,
+              1260
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              512,
+              352
+            ],
+            "carried": [
+              36,
+              44
+            ],
+            "earned": [
+              2330,
+              1620
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              636,
+              418
+            ],
+            "carried": [
+              22,
+              102
+            ],
+            "earned": [
+              2780,
+              2140
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              804,
+              462
+            ],
+            "carried": [
+              102,
+              66
+            ],
+            "earned": [
+              3710,
+              2320
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              950,
+              550
+            ],
+            "carried": [
+              110,
+              22
+            ],
+            "earned": [
+              4340,
+              2500
+            ]
+          }
+        ]
+      },
+      {
+        "map": "monolith",
+        "side": 1,
+        "win": false,
+        "score": [
+          906,
+          1004
+        ],
+        "rounds": 544,
+        "deaths": [
+          6,
+          2
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              80,
+              44
+            ],
+            "earned": [
+              340,
+              180
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              66,
+              102
+            ],
+            "carried": [
+              80,
+              44
+            ],
+            "earned": [
+              610,
+              610
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              190,
+              168
+            ],
+            "carried": [
+              88,
+              66
+            ],
+            "earned": [
+              1150,
+              970
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              256,
+              270
+            ],
+            "carried": [
+              66,
+              22
+            ],
+            "earned": [
+              1330,
+              1220
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              366,
+              314
+            ],
+            "carried": [
+              124,
+              80
+            ],
+            "earned": [
+              2030,
+              1650
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              498,
+              540
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2480,
+              1880
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              520,
+              606
+            ],
+            "carried": [
+              110,
+              0
+            ],
+            "earned": [
+              3020,
+              2150
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              608,
+              606
+            ],
+            "carried": [
+              88,
+              146
+            ],
+            "earned": [
+              3290,
+              2760
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              784,
+              738
+            ],
+            "carried": [
+              22,
+              102
+            ],
+            "earned": [
+              3740,
+              3120
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              850,
+              862
+            ],
+            "carried": [
+              124,
+              80
+            ],
+            "earned": [
+              4490,
+              3550
+            ]
+          }
+        ]
+      },
+      {
+        "map": "packs",
+        "side": 0,
+        "win": true,
+        "score": [
+          1040,
+          932
+        ],
+        "rounds": 492,
+        "deaths": [
+          0,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              44,
+              44
+            ],
+            "carried": [
+              44,
+              0
+            ],
+            "earned": [
+              360,
+              180
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              132,
+              132
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              540,
+              540
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              176,
+              224
+            ],
+            "carried": [
+              44,
+              0
+            ],
+            "earned": [
+              900,
+              790
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              336,
+              312
+            ],
+            "carried": [
+              0,
+              48
+            ],
+            "earned": [
+              1400,
+              1220
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              424,
+              452
+            ],
+            "carried": [
+              0,
+              44
+            ],
+            "earned": [
+              1760,
+              1650
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              540,
+              496
+            ],
+            "carried": [
+              92,
+              0
+            ],
+            "earned": [
+              2510,
+              1650
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              748,
+              660
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3010,
+              2220
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              836,
+              704
+            ],
+            "carried": [
+              0,
+              92
+            ],
+            "earned": [
+              3370,
+              2650
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              880,
+              844
+            ],
+            "carried": [
+              72,
+              0
+            ],
+            "earned": [
+              3870,
+              2720
+            ]
+          }
+        ]
+      },
+      {
+        "map": "packs",
+        "side": 1,
+        "win": true,
+        "score": [
+          1036,
+          832
+        ],
+        "rounds": 527,
+        "deaths": [
+          0,
+          2
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              44,
+              44
+            ],
+            "carried": [
+              44,
+              44
+            ],
+            "earned": [
+              360,
+              360
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              132,
+              132
+            ],
+            "carried": [
+              0,
+              44
+            ],
+            "earned": [
+              540,
+              720
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              176,
+              220
+            ],
+            "carried": [
+              0,
+              44
+            ],
+            "earned": [
+              720,
+              1080
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              264,
+              312
+            ],
+            "carried": [
+              0,
+              44
+            ],
+            "earned": [
+              1080,
+              1330
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              352,
+              400
+            ],
+            "carried": [
+              0,
+              72
+            ],
+            "earned": [
+              1440,
+              1830
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              352,
+              560
+            ],
+            "carried": [
+              92,
+              0
+            ],
+            "earned": [
+              1690,
+              2190
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              488,
+              652
+            ],
+            "carried": [
+              0,
+              72
+            ],
+            "earned": [
+              1870,
+              2760
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              580,
+              812
+            ],
+            "carried": [
+              0,
+              48
+            ],
+            "earned": [
+              2120,
+              3240
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              580,
+              904
+            ],
+            "carried": [
+              72,
+              44
+            ],
+            "earned": [
+              2440,
+              3600
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              740,
+              948
+            ],
+            "carried": [
+              0,
+              44
+            ],
+            "earned": [
+              2800,
+              3780
+            ]
+          }
+        ]
+      },
+      {
+        "map": "pilgrimage",
+        "side": 0,
+        "win": true,
+        "score": [
+          1120,
+          544
+        ],
+        "rounds": 629,
+        "deaths": [
+          2,
+          3
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              68,
+              68
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              215,
+              215
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              68,
+              68
+            ],
+            "carried": [
+              68,
+              68
+            ],
+            "earned": [
+              430,
+              430
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              136,
+              136
+            ],
+            "carried": [
+              144,
+              0
+            ],
+            "earned": [
+              1210,
+              430
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              348,
+              204
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1425,
+              645
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              348,
+              272
+            ],
+            "carried": [
+              68,
+              0
+            ],
+            "earned": [
+              1640,
+              910
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              560,
+              272
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2520,
+              960
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              628,
+              340
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2735,
+              1175
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              628,
+              408
+            ],
+            "carried": [
+              68,
+              0
+            ],
+            "earned": [
+              2950,
+              1390
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              840,
+              408
+            ],
+            "carried": [
+              0,
+              68
+            ],
+            "earned": [
+              3730,
+              1605
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              908,
+              476
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3995,
+              1605
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              908,
+              544
+            ],
+            "carried": [
+              212,
+              0
+            ],
+            "earned": [
+              4990,
+              1820
+            ]
+          }
+        ]
+      },
+      {
+        "map": "pilgrimage",
+        "side": 1,
+        "win": false,
+        "score": [
+          612,
+          1044
+        ],
+        "rounds": 644,
+        "deaths": [
+          1,
+          1
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              68,
+              68
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              215,
+              215
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              68,
+              68
+            ],
+            "carried": [
+              68,
+              68
+            ],
+            "earned": [
+              430,
+              430
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              136,
+              136
+            ],
+            "carried": [
+              144,
+              0
+            ],
+            "earned": [
+              1210,
+              430
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              348,
+              204
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1425,
+              645
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              416,
+              272
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1640,
+              860
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              416,
+              272
+            ],
+            "carried": [
+              212,
+              68
+            ],
+            "earned": [
+              2635,
+              1075
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              628,
+              340
+            ],
+            "carried": [
+              0,
+              68
+            ],
+            "earned": [
+              2635,
+              1290
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              696,
+              408
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2850,
+              1290
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              696,
+              476
+            ],
+            "carried": [
+              212,
+              0
+            ],
+            "earned": [
+              3895,
+              1505
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              764,
+              476
+            ],
+            "carried": [
+              144,
+              68
+            ],
+            "earned": [
+              3895,
+              1720
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              976,
+              544
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4110,
+              1720
+            ]
+          }
+        ]
+      },
+      {
+        "map": "rows",
+        "side": 0,
+        "win": true,
+        "score": [
+          1056,
+          792
+        ],
+        "rounds": 456,
+        "deaths": [
+          0,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              66
+            ],
+            "earned": [
+              0,
+              270
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              132,
+              132
+            ],
+            "carried": [
+              66,
+              0
+            ],
+            "earned": [
+              810,
+              540
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              198,
+              198
+            ],
+            "carried": [
+              66,
+              66
+            ],
+            "earned": [
+              1080,
+              1080
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              330,
+              264
+            ],
+            "carried": [
+              66,
+              66
+            ],
+            "earned": [
+              1620,
+              1350
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              462,
+              396
+            ],
+            "carried": [
+              66,
+              66
+            ],
+            "earned": [
+              2160,
+              1890
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              594,
+              462
+            ],
+            "carried": [
+              66,
+              66
+            ],
+            "earned": [
+              2700,
+              2160
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              792,
+              594
+            ],
+            "carried": [
+              66,
+              0
+            ],
+            "earned": [
+              3510,
+              2430
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              924,
+              594
+            ],
+            "carried": [
+              66,
+              132
+            ],
+            "earned": [
+              4050,
+              2970
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              990,
+              792
+            ],
+            "carried": [
+              198,
+              0
+            ],
+            "earned": [
+              4860,
+              3240
+            ]
+          }
+        ]
+      },
+      {
+        "map": "rows",
+        "side": 1,
+        "win": true,
+        "score": [
+          1056,
+          924
+        ],
+        "rounds": 470,
+        "deaths": [
+          0,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              66,
+              0
+            ],
+            "earned": [
+              270,
+              0
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              132,
+              132
+            ],
+            "carried": [
+              66,
+              0
+            ],
+            "earned": [
+              810,
+              540
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              198,
+              132
+            ],
+            "carried": [
+              0,
+              132
+            ],
+            "earned": [
+              810,
+              1080
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              264,
+              330
+            ],
+            "carried": [
+              66,
+              66
+            ],
+            "earned": [
+              1350,
+              1620
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              462,
+              396
+            ],
+            "carried": [
+              66,
+              66
+            ],
+            "earned": [
+              2160,
+              1890
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              528,
+              594
+            ],
+            "carried": [
+              66,
+              0
+            ],
+            "earned": [
+              2430,
+              2430
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              660,
+              660
+            ],
+            "carried": [
+              0,
+              132
+            ],
+            "earned": [
+              2700,
+              3240
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              792,
+              792
+            ],
+            "carried": [
+              66,
+              132
+            ],
+            "earned": [
+              3510,
+              3780
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              858,
+              990
+            ],
+            "carried": [
+              132,
+              66
+            ],
+            "earned": [
+              4050,
+              4320
+            ]
+          }
+        ]
+      },
+      {
+        "map": "rushbait-v2",
+        "side": 0,
+        "win": true,
+        "score": [
+          1030,
+          928
+        ],
+        "rounds": 904,
+        "deaths": [
+          4,
+          8
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              90,
+              90
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              22,
+              44
+            ],
+            "carried": [
+              44,
+              0
+            ],
+            "earned": [
+              320,
+              180
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              66,
+              66
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              320,
+              320
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              66,
+              110
+            ],
+            "carried": [
+              88,
+              0
+            ],
+            "earned": [
+              680,
+              500
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              198,
+              110
+            ],
+            "carried": [
+              0,
+              44
+            ],
+            "earned": [
+              860,
+              680
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              242,
+              154
+            ],
+            "carried": [
+              22,
+              44
+            ],
+            "earned": [
+              1130,
+              860
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              264,
+              220
+            ],
+            "carried": [
+              58,
+              36
+            ],
+            "earned": [
+              1380,
+              1110
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              344,
+              292
+            ],
+            "carried": [
+              44,
+              44
+            ],
+            "earned": [
+              1650,
+              1450
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              432,
+              314
+            ],
+            "carried": [
+              22,
+              66
+            ],
+            "earned": [
+              1970,
+              1630
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              454,
+              380
+            ],
+            "carried": [
+              58,
+              66
+            ],
+            "earned": [
+              2220,
+              1900
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              490,
+              468
+            ],
+            "carried": [
+              80,
+              22
+            ],
+            "earned": [
+              2470,
+              2080
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              578,
+              534
+            ],
+            "carried": [
+              58,
+              80
+            ],
+            "earned": [
+              2740,
+              2650
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              658,
+              614
+            ],
+            "carried": [
+              22,
+              58
+            ],
+            "earned": [
+              2880,
+              3040
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              680,
+              658
+            ],
+            "carried": [
+              66,
+              58
+            ],
+            "earned": [
+              3150,
+              3220
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              724,
+              680
+            ],
+            "carried": [
+              102,
+              88
+            ],
+            "earned": [
+              3380,
+              3580
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              826,
+              790
+            ],
+            "carried": [
+              102,
+              0
+            ],
+            "earned": [
+              3770,
+              3760
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              892,
+              790
+            ],
+            "carried": [
+              94,
+              80
+            ],
+            "earned": [
+              4020,
+              4100
+            ]
+          },
+          {
+            "r": 900,
+            "sub": [
+              986,
+              928
+            ],
+            "carried": [
+              102,
+              80
+            ],
+            "earned": [
+              4450,
+              4690
+            ]
+          }
+        ]
+      },
+      {
+        "map": "rushbait-v2",
+        "side": 1,
+        "win": false,
+        "score": [
+          928,
+          1010
+        ],
+        "rounds": 864,
+        "deaths": [
+          6,
+          4
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              22,
+              22
+            ],
+            "earned": [
+              90,
+              90
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              22,
+              0
+            ],
+            "carried": [
+              44,
+              44
+            ],
+            "earned": [
+              270,
+              180
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              22,
+              66
+            ],
+            "carried": [
+              44,
+              22
+            ],
+            "earned": [
+              270,
+              360
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              110,
+              88
+            ],
+            "carried": [
+              0,
+              22
+            ],
+            "earned": [
+              450,
+              450
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              176,
+              88
+            ],
+            "carried": [
+              0,
+              44
+            ],
+            "earned": [
+              720,
+              540
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              176,
+              110
+            ],
+            "carried": [
+              80,
+              88
+            ],
+            "earned": [
+              1060,
+              810
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              242,
+              198
+            ],
+            "carried": [
+              22,
+              80
+            ],
+            "earned": [
+              1200,
+              1130
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              264,
+              242
+            ],
+            "carried": [
+              22,
+              80
+            ],
+            "earned": [
+              1290,
+              1310
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              308,
+              366
+            ],
+            "carried": [
+              66,
+              0
+            ],
+            "earned": [
+              1650,
+              1490
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              374,
+              388
+            ],
+            "carried": [
+              44,
+              94
+            ],
+            "earned": [
+              1830,
+              1990
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              418,
+              446
+            ],
+            "carried": [
+              88,
+              102
+            ],
+            "earned": [
+              2190,
+              2260
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              506,
+              512
+            ],
+            "carried": [
+              80,
+              138
+            ],
+            "earned": [
+              2530,
+              2690
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              572,
+              592
+            ],
+            "carried": [
+              102,
+              138
+            ],
+            "earned": [
+              2890,
+              3030
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              616,
+              658
+            ],
+            "carried": [
+              124,
+              94
+            ],
+            "earned": [
+              3160,
+              3120
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              776,
+              702
+            ],
+            "carried": [
+              80,
+              22
+            ],
+            "earned": [
+              3440,
+              3300
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              922,
+              746
+            ],
+            "carried": [
+              0,
+              58
+            ],
+            "earned": [
+              3710,
+              3640
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              922,
+              884
+            ],
+            "carried": [
+              146,
+              44
+            ],
+            "earned": [
+              4370,
+              4210
+            ]
+          }
+        ]
+      },
+      {
+        "map": "stampede",
+        "side": 0,
+        "win": false,
+        "score": [
+          0,
+          0
+        ],
+        "rounds": 2000,
+        "deaths": [
+          0,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              70,
+              140
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              210,
+              420
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              560,
+              560
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              770,
+              980
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1050,
+              1120
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1260,
+              1400
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1610,
+              1540
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1960,
+              1820
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2240,
+              2100
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2450,
+              2380
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2730,
+              2730
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2940,
+              2870
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3290,
+              3220
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3360,
+              3500
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3640,
+              3780
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3850,
+              4130
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3990,
+              4340
+            ]
+          },
+          {
+            "r": 900,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4130,
+              4690
+            ]
+          },
+          {
+            "r": 950,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4130,
+              4900
+            ]
+          },
+          {
+            "r": 1000,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4270,
+              5250
+            ]
+          },
+          {
+            "r": 1050,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4410,
+              5600
+            ]
+          },
+          {
+            "r": 1100,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4550,
+              5880
+            ]
+          },
+          {
+            "r": 1150,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4620,
+              6230
+            ]
+          },
+          {
+            "r": 1200,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4830,
+              6370
+            ]
+          },
+          {
+            "r": 1250,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5040,
+              6720
+            ]
+          },
+          {
+            "r": 1300,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5180,
+              7070
+            ]
+          },
+          {
+            "r": 1350,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5390,
+              7280
+            ]
+          },
+          {
+            "r": 1400,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5530,
+              7630
+            ]
+          },
+          {
+            "r": 1450,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              7980
+            ]
+          },
+          {
+            "r": 1500,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              8260
+            ]
+          },
+          {
+            "r": 1550,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              8470
+            ]
+          },
+          {
+            "r": 1600,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              8750
+            ]
+          },
+          {
+            "r": 1650,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              9100
+            ]
+          },
+          {
+            "r": 1700,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              9450
+            ]
+          },
+          {
+            "r": 1750,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              9730
+            ]
+          },
+          {
+            "r": 1800,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              10010
+            ]
+          },
+          {
+            "r": 1850,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              10360
+            ]
+          },
+          {
+            "r": 1900,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              10500
+            ]
+          },
+          {
+            "r": 1950,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              10780
+            ]
+          },
+          {
+            "r": 2000,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              5600,
+              11130
+            ]
+          }
+        ]
+      },
+      {
+        "map": "stampede",
+        "side": 1,
+        "win": true,
+        "score": [
+          0,
+          0
+        ],
+        "rounds": 2000,
+        "deaths": [
+          0,
+          0
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              70,
+              140
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              210,
+              420
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              560,
+              560
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              700,
+              980
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1050,
+              1120
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1260,
+              1400
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1540,
+              1540
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1820,
+              1820
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2030,
+              2100
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2310,
+              2380
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2660,
+              2730
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3010,
+              2870
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3010,
+              3220
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3150,
+              3500
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3290,
+              3780
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3430,
+              4130
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3570,
+              4340
+            ]
+          },
+          {
+            "r": 900,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3710,
+              4690
+            ]
+          },
+          {
+            "r": 950,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3710,
+              4900
+            ]
+          },
+          {
+            "r": 1000,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3850,
+              5250
+            ]
+          },
+          {
+            "r": 1050,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3990,
+              5600
+            ]
+          },
+          {
+            "r": 1100,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4130,
+              5880
+            ]
+          },
+          {
+            "r": 1150,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4270,
+              6230
+            ]
+          },
+          {
+            "r": 1200,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4340,
+              6370
+            ]
+          },
+          {
+            "r": 1250,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4550,
+              6720
+            ]
+          },
+          {
+            "r": 1300,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4760,
+              7070
+            ]
+          },
+          {
+            "r": 1350,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4900,
+              7280
+            ]
+          },
+          {
+            "r": 1400,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              7630
+            ]
+          },
+          {
+            "r": 1450,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              7980
+            ]
+          },
+          {
+            "r": 1500,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              8260
+            ]
+          },
+          {
+            "r": 1550,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              8470
+            ]
+          },
+          {
+            "r": 1600,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              8750
+            ]
+          },
+          {
+            "r": 1650,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              9100
+            ]
+          },
+          {
+            "r": 1700,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              9450
+            ]
+          },
+          {
+            "r": 1750,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              9730
+            ]
+          },
+          {
+            "r": 1800,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              10010
+            ]
+          },
+          {
+            "r": 1850,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              10360
+            ]
+          },
+          {
+            "r": 1900,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              10500
+            ]
+          },
+          {
+            "r": 1950,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              10780
+            ]
+          },
+          {
+            "r": 2000,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4970,
+              11130
+            ]
+          }
+        ]
+      },
+      {
+        "map": "swirl",
+        "side": 0,
+        "win": true,
+        "score": [
+          1030,
+          640
+        ],
+        "rounds": 889,
+        "deaths": [
+          31,
+          34
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              36,
+              36
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              315,
+              315
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              36,
+              36
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              365,
+              415
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              36,
+              36
+            ],
+            "carried": [
+              36,
+              0
+            ],
+            "earned": [
+              630,
+              465
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              72,
+              36
+            ],
+            "carried": [
+              88,
+              0
+            ],
+            "earned": [
+              990,
+              465
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              160,
+              72
+            ],
+            "carried": [
+              36,
+              0
+            ],
+            "earned": [
+              1355,
+              780
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              160,
+              108
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1405,
+              880
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              160,
+              144
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1505,
+              1195
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              196,
+              144
+            ],
+            "carried": [
+              88,
+              0
+            ],
+            "earned": [
+              2230,
+              1245
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              284,
+              180
+            ],
+            "carried": [
+              96,
+              0
+            ],
+            "earned": [
+              2550,
+              1510
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              416,
+              180
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2865,
+              1560
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              416,
+              216
+            ],
+            "carried": [
+              132,
+              88
+            ],
+            "earned": [
+              3490,
+              2235
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              548,
+              216
+            ],
+            "carried": [
+              88,
+              0
+            ],
+            "earned": [
+              3590,
+              2285
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              672,
+              252
+            ],
+            "carried": [
+              88,
+              0
+            ],
+            "earned": [
+              4265,
+              2550
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              738,
+              340
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4570,
+              2700
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              774,
+              420
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              4985,
+              3330
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              862,
+              420
+            ],
+            "carried": [
+              0,
+              88
+            ],
+            "earned": [
+              5395,
+              3690
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              898,
+              508
+            ],
+            "carried": [
+              0,
+              36
+            ],
+            "earned": [
+              5760,
+              4105
+            ]
+          }
+        ]
+      },
+      {
+        "map": "swirl",
+        "side": 1,
+        "win": true,
+        "score": [
+          1094,
+          770
+        ],
+        "rounds": 923,
+        "deaths": [
+          27,
+          35
+        ],
+        "errors": 0,
+        "suspensions": 0,
+        "pace": [
+          {
+            "r": 0,
+            "sub": [
+              0,
+              0
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              0,
+              0
+            ]
+          },
+          {
+            "r": 50,
+            "sub": [
+              36,
+              36
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              315,
+              315
+            ]
+          },
+          {
+            "r": 100,
+            "sub": [
+              36,
+              36
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              365,
+              415
+            ]
+          },
+          {
+            "r": 150,
+            "sub": [
+              36,
+              36
+            ],
+            "carried": [
+              36,
+              0
+            ],
+            "earned": [
+              630,
+              465
+            ]
+          },
+          {
+            "r": 200,
+            "sub": [
+              72,
+              36
+            ],
+            "carried": [
+              88,
+              0
+            ],
+            "earned": [
+              990,
+              465
+            ]
+          },
+          {
+            "r": 250,
+            "sub": [
+              160,
+              72
+            ],
+            "carried": [
+              0,
+              88
+            ],
+            "earned": [
+              990,
+              1140
+            ]
+          },
+          {
+            "r": 300,
+            "sub": [
+              160,
+              72
+            ],
+            "carried": [
+              88,
+              0
+            ],
+            "earned": [
+              1040,
+              1240
+            ]
+          },
+          {
+            "r": 350,
+            "sub": [
+              160,
+              72
+            ],
+            "carried": [
+              0,
+              88
+            ],
+            "earned": [
+              1040,
+              1390
+            ]
+          },
+          {
+            "r": 400,
+            "sub": [
+              178,
+              160
+            ],
+            "carried": [
+              0,
+              114
+            ],
+            "earned": [
+              1090,
+              2025
+            ]
+          },
+          {
+            "r": 450,
+            "sub": [
+              178,
+              318
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1140,
+              2340
+            ]
+          },
+          {
+            "r": 500,
+            "sub": [
+              266,
+              354
+            ],
+            "carried": [
+              0,
+              88
+            ],
+            "earned": [
+              1550,
+              3015
+            ]
+          },
+          {
+            "r": 550,
+            "sub": [
+              302,
+              478
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              1865,
+              3330
+            ]
+          },
+          {
+            "r": 600,
+            "sub": [
+              302,
+              478
+            ],
+            "carried": [
+              0,
+              88
+            ],
+            "earned": [
+              1865,
+              3790
+            ]
+          },
+          {
+            "r": 650,
+            "sub": [
+              302,
+              566
+            ],
+            "carried": [
+              36,
+              0
+            ],
+            "earned": [
+              2130,
+              3840
+            ]
+          },
+          {
+            "r": 700,
+            "sub": [
+              522,
+              646
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              2550,
+              4780
+            ]
+          },
+          {
+            "r": 750,
+            "sub": [
+              522,
+              646
+            ],
+            "carried": [
+              88,
+              96
+            ],
+            "earned": [
+              2910,
+              5150
+            ]
+          },
+          {
+            "r": 800,
+            "sub": [
+              682,
+              742
+            ],
+            "carried": [
+              0,
+              0
+            ],
+            "earned": [
+              3375,
+              5415
+            ]
+          },
+          {
+            "r": 850,
+            "sub": [
+              682,
+              742
+            ],
+            "carried": [
+              96,
+              88
+            ],
+            "earned": [
+              4105,
+              5515
+            ]
+          },
+          {
+            "r": 900,
+            "sub": [
+              682,
+              866
+            ],
+            "carried": [
+              0,
+              184
+            ],
+            "earned": [
+              4105,
+              6240
+            ]
+          }
+        ]
+      }
+    ],
+    "wins": 23,
+    "games": 34
+  },
+  "bundle": {
+    "name": "quantum-altar-v16.zip",
+    "sha256": "cd21b9ae7dbdaa3ed21e2467b37b879b2c2e447804f58c6584388d89409ce04b",
+    "files": [
+      "src/bot.py",
+      "src/camp_tactics.py",
+      "src/combat.py",
+      "src/coordination.py",
+      "src/draft.py",
+      "src/main.py",
+      "src/objective_policy.py",
+      "src/planner/__init__.py",
+      "src/planner/ledger.py",
+      "src/policy.py",
+      "src/portfolio.py",
+      "src/randomness.py",
+      "src/variants/__init__.py",
+      "src/variants/incumbent/__init__.py",
+      "src/variants/incumbent/bot.py",
+      "src/variants/incumbent/combat.py",
+      "src/variants/incumbent/coordination.py",
+      "src/variants/incumbent/draft.py",
+      "src/variants/incumbent/objective_policy.py",
+      "src/variants/incumbent/planner/__init__.py",
+      "src/variants/incumbent/planner/ledger.py",
+      "src/variants/incumbent/policy.py",
+      "src/variants/incumbent/randomness.py",
+      "src/variants/packs/__init__.py",
+      "src/variants/packs/bot.py",
+      "src/variants/packs/camp_tactics.py",
+      "src/variants/packs/combat.py",
+      "src/variants/packs/coordination.py",
+      "src/variants/packs/draft.py",
+      "src/variants/packs/objective_policy.py",
+      "src/variants/packs/planner/__init__.py",
+      "src/variants/packs/planner/ledger.py",
+      "src/variants/packs/policy.py",
+      "src/variants/packs/randomness.py"
+    ]
+  },
+  "limitations": [
+    "Local opponents, not private top-team bot implementations.",
+    "Development maps and fixtures informed candidate selection.",
+    "Replays show opponent behaviour, not opponent source code.",
+    "Repeated deterministic fixtures are not independent samples."
+  ]
+}

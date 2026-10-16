@@ -14,32 +14,21 @@ A bot developed for the [Cambridge Battlecode '26 Autumn](https://2026a.battleco
 
 ## Bot
 
-Upload bundle: [`quantum-altar.zip`](quantum-altar.zip). The complete validation
-record is in [`docs/league-results.json`](docs/league-results.json).
-It won **28/34** fixtures against the original bot across all 17 maps and both
-sides, plus **12/12** against three additional local opponent styles.
+Upload **[`quantum-altar-v16.zip`](quantum-altar-v16.zip)**. Release evidence and
+limitations are in [`docs/v16-strategy.md`](docs/v16-strategy.md) and
+[`docs/v16-results.json`](docs/v16-results.json).
 
-The offline-learning candidate lives in [`bots/league/src/`](bots/league/src/).
-It adds team camp reservations, dash-plus-walk movement, investment and
-safe siege behaviour for large camps, plus incremental map-cache warm-up.
-[`runner/train_league.py`](runner/train_league.py)
-selects roster and policy settings using real WASI matches against frozen
-opponents, with separate validation maps. See
-[`docs/league-strategy.md`](docs/league-strategy.md) for research and results.
-The reference bot remains in [`bots/main/src/`](bots/main/src/).
-The earlier `topteam` map-profile experiment is superseded by this work.
+This release analyses 25 supplied matches against five leading teams and compares
+against the newer repository baseline `f159455`. It selects a farming policy for
+five verified layouts, a pack-clearing variant for Packs, and retains the existing
+strategy elsewhere. Improvements include bounded farm routes, fuel headroom,
+area-damage targeting, capture completion and revised farming item builds.
+Top-five ladder performance still needs fresh server matches.
 
-The Python bot lives in [`bots/main/src/`](bots/main/src/):
-
-- `main.py`: persistent draft/gameplay loop, exception logging and turn yielding.
-- `draft.py`: picks distinct champions using the SDK's draft IDs.
-- `bot.py`: legal movement, basic attacks, camp farming/capture, altar tribute and shopping.
-- `randomness.py`: deterministic spawn-seeded PRNG (WASI randomness is zero in matches).
-
-This reference bot includes spell/reset use, greedy combat, camp farming,
-recall, tribute, warding and lock breaking. Native bitboards and distance fields
-route around terrain and visible occupants. A fuel ledger bounds optional work.
-Its policy stays fixed between games; local offline training is a separate process.
+`bots/main/src/` is the release source; `bots/league/src/` mirrors it. The
+`variants/` packages preserve the tested policies used by the map selector.
+The previous `quantum-altar.zip` and `docs/league-results.json` are historical;
+their 28/34 result uses an older baseline and does not describe this release.
 
 ## Match Runner
 
@@ -52,7 +41,7 @@ See [`runner/README.md`](runner/README.md) for options and result files.
 
 ## Strategy
 
-Use [`docs/league-strategy.md`](docs/league-strategy.md) for the current strategy,
+Use [`docs/v16-strategy.md`](docs/v16-strategy.md) for the current strategy,
 measured results and limitations. Older planning notes remain in
 [`docs/strategy-playbook.md`](docs/strategy-playbook.md).
 
@@ -61,7 +50,7 @@ measured results and limitations. Older planning notes remain in
 From the repository root (Python 3.10+ recommended for the local runner):
 
 ```sh
-python -m pip install cambc==2.1.6
+python -m pip install cambc==2.2.1
 cambc init --yes .
 cambc maps pull
 cambc build bots/league
